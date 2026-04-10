@@ -8,6 +8,7 @@ import { SystemInputs } from "@/components/SystemInputs";
 import { ResultsCard } from "@/components/ResultsCard";
 import { RefineEstimate } from "@/components/RefineEstimate";
 import { QuoteForm } from "@/components/QuoteForm";
+import { ShareResults } from "@/components/ShareResults";
 import { calculateSolarEstimate } from "@/lib/calculations";
 import solarData from "@/data/solar-hours.json";
 import type { StateData, Utility, TiltAngle } from "@/lib/types";
@@ -149,7 +150,7 @@ export default function Home() {
               onRefine={setPvwattsKwh}
             />
           </div>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col gap-3">
             <QuoteForm
               state={selectedState}
               utility={selectedUtility?.name ?? "Custom rate"}
@@ -157,6 +158,13 @@ export default function Home() {
               systemCost={systemCost}
               estimatedPayback={estimate.paybackYears}
               estimatedAnnualSavings={estimate.annualSavings}
+            />
+            <ShareResults
+              estimate={estimate}
+              state={selectedState}
+              utility={selectedUtility?.name ?? "Custom rate"}
+              systemSizeW={systemSizeW}
+              systemCost={systemCost}
             />
           </div>
         </section>
