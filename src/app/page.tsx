@@ -108,7 +108,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-1 flex-col items-center bg-white">
-      <Header />
+      <Header calcCount={calcCount} />
 
       <section className="w-full py-2">
         <USMap
@@ -163,11 +163,6 @@ export default function Home() {
       )}
 
       <footer className="w-full py-6 text-center text-sm text-zinc-400 border-t border-zinc-100 mt-auto">
-        {calcCount != null && (
-          <p className="text-base font-semibold text-zinc-500 mb-2">
-            {calcCount.toLocaleString()} calculations and counting
-          </p>
-        )}
         <p>
           Estimates are approximate. Actual production depends on panel orientation,
           shading, and local conditions.
