@@ -126,6 +126,17 @@ export default function Home() {
         <p className="mt-1">
           &copy; {new Date().getFullYear()} ElectrifyEverythingNow.com
         </p>
+        <p className="mt-2">
+          Built by{" "}
+          <a
+            href="https://joshlake.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-amber-500 hover:text-amber-400 underline underline-offset-2"
+          >
+            Josh Lake
+          </a>
+        </p>
       </footer>
     </main>
   );
