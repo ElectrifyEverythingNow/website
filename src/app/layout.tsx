@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,27 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Balcony Solar Calculator | ElectrifyEverythingNow",
+  title: "ElectrifyEverythingNow — Free Tools for the Electrification Movement",
   description:
-    "See if plug-in balcony solar makes financial sense for your home. Free calculator with local utility rates, tilt angles, and real payback estimates.",
+    "Free calculators and tools to help homeowners electrify their homes. Solar calculators, rate optimizers, and more.",
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌞</text></svg>",
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>",
   },
-  metadataBase: new URL("https://solar.electrifyeverythingnow.com"),
-  openGraph: {
-    title: "Balcony Solar Calculator — Does Plug-In Solar Make Sense for You?",
-    description:
-      "Free calculator: pick your state, choose your utility, select your tilt angle, and get an instant payback estimate. No signup required.",
-    url: "https://solar.electrifyeverythingnow.com",
-    siteName: "ElectrifyEverythingNow",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Balcony Solar Calculator — Does Plug-In Solar Make Sense for You?",
-    description:
-      "Free calculator: pick your state, select your tilt angle, and get an instant payback estimate. No signup.",
-  },
+  metadataBase: new URL("https://electrifyeverythingnow.com"),
 };
 
 export default function RootLayout({
@@ -44,7 +31,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SiteNav />
+        {children}
+      </body>
     </html>
   );
 }

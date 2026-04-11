@@ -4,7 +4,7 @@ interface HeaderProps {
   calcCount: number | null;
 }
 
-const SHARE_URL = "https://solar.electrifyeverythingnow.com";
+const SHARE_URL = "https://electrifyeverythingnow.com/solar";
 const SHARE_TEXT = "Check if balcony solar makes sense for you — free calculator, no signup";
 
 export function Header({ calcCount }: HeaderProps) {
@@ -14,22 +14,6 @@ export function Header({ calcCount }: HeaderProps) {
 
   return (
     <header className="w-full">
-      {/* Top banner */}
-      <div className="bg-zinc-900 text-white text-center py-2 px-4">
-        <p className="text-xs sm:text-sm font-medium tracking-wide">
-          Built by{" "}
-          <a
-            href="https://electrifyeverythingnow.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-green-400 hover:text-green-300 underline underline-offset-2"
-          >
-            ElectrifyEverythingNow
-          </a>
-          {" "} — Free tools for the electrification movement
-        </p>
-      </div>
-
       <div className="bg-gradient-to-b from-sky-50 to-white pt-6 pb-3 px-4">
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           <Image
