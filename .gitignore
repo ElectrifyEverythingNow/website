@@ -13,3 +13,4 @@ out/
 .env.production
 package-lock.json
 next-env.d.ts
+.superpowers/
