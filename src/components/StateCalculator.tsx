@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Header } from "@/components/Header";
 import { USMap } from "@/components/USMap";
-import { UtilityPicker } from "@/components/UtilityPicker";
+import { UtilityComparison } from "@/components/UtilityComparison";
 import { SystemInputs } from "@/components/SystemInputs";
 import { ResultsCard } from "@/components/ResultsCard";
 import { RefineEstimate } from "@/components/RefineEstimate";
@@ -13,7 +13,16 @@ import { LegislationSection } from "@/components/LegislationSection";
 import { EducationalContent } from "@/components/EducationalContent";
 import { calculateSolarEstimate } from "@/lib/calculations";
 import solarData from "@/data/solar-hours.json";
-import type { StateData, Utility, TiltAngle } from "@/lib/types";
+import utilitiesData from "@/data/utilities.json";
+import type { StateData, Utility, StateUtilities, TiltAngle } from "@/lib/types";
+
+function getLargestUtility(stateCode: string): Utility | null {
+  const stateUtils = (utilitiesData as Record<string, StateUtilities>)[stateCode];
+  if (!stateUtils?.utilities?.length) return null;
+  return stateUtils.utilities.reduce((a, b) =>
+    a.customers > b.customers ? a : b
+  );
+}
 
 interface StateCalculatorProps {
   initialStateCode: string | null;
@@ -51,9 +60,11 @@ export function StateCalculator({ initialStateCode }: StateCalculatorProps) {
   const handleSelectState = useCallback(
     (code: string) => {
       setSelectedState(code);
-      setSelectedUtility(null);
       setCustomRate(null);
       setPvwattsKwh(null);
+      // Auto-select the largest utility in the state
+      const largest = getLargestUtility(code);
+      setSelectedUtility(largest);
       incrementCounter();
     },
     [incrementCounter]
@@ -125,13 +136,16 @@ export function StateCalculator({ initialStateCode }: StateCalculatorProps) {
     pvwattsKwh,
   ]);
 
-  const handleSelectUtility = (
-    utility: Utility | null,
-    rate: number | null
-  ) => {
-    setSelectedUtility(utility);
-    setCustomRate(rate);
-    incrementCounter();
+  const handleSelectUtilityFromComparison = (utilityIndex: number) => {
+    if (!selectedState) return;
+    const stateUtils = (utilitiesData as Record<string, StateUtilities>)[selectedState];
+    const utility = stateUtils?.utilities?.[utilityIndex];
+    if (utility) {
+      setSelectedUtility(utility);
+      setCustomRate(null);
+      setPvwattsKwh(null);
+      incrementCounter();
+    }
   };
 
   const handleSystemSizeChange = (value: number) => {
@@ -168,10 +182,21 @@ export function StateCalculator({ initialStateCode }: StateCalculatorProps) {
       {selectedState && (
         <section className="w-full max-w-2xl mx-auto px-4 pb-8">
           <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 space-y-6">
-            <UtilityPicker
+            <UtilityComparison
               stateCode={selectedState}
-              onSelectUtility={handleSelectUtility}
+              systemSizeW={systemSizeW}
+              systemCost={systemCost}
+              tiltAngle={tiltAngle}
+              annualEscalator={annualEscalator}
+              selectedUtilityName={selectedUtility?.name ?? null}
+              onSelectUtility={handleSelectUtilityFromComparison}
+              onCustomRate={(rate) => {
+                setSelectedUtility(null);
+                setCustomRate(rate);
+                if (rate != null) incrementCounter();
+              }}
             />
+            <div className="border-t border-zinc-100 pt-4">
             <SystemInputs
               systemSizeW={systemSizeW}
               systemCost={systemCost}
@@ -182,6 +207,7 @@ export function StateCalculator({ initialStateCode }: StateCalculatorProps) {
               onTiltAngleChange={handleTiltAngleChange}
               onEscalatorChange={handleEscalatorChange}
             />
+            </div>
           </div>
         </section>
       )}

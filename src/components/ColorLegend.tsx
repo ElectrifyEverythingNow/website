@@ -20,7 +20,7 @@ export function ColorLegend() {
         </div>
       </div>
       <p className="text-zinc-400">
-        Colors assume 1,200W DC at 30° tilt, $2,000 all-in cost
+        State colors use weighted avg across utilities · hover for per-utility breakdown
       </p>
     </div>
   );

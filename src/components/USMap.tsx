@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   ComposableMap,
   Geographies,
@@ -11,7 +11,7 @@ import { ColorLegend } from "./ColorLegend";
 import solarData from "@/data/solar-hours.json";
 import legislationData from "@/data/legislation.json";
 import utilitiesData from "@/data/utilities.json";
-import type { StateData, LegislationInfo, Utility } from "@/lib/types";
+import type { StateData, LegislationInfo } from "@/lib/types";
 import { calculateSolarEstimate, getVerdict } from "@/lib/calculations";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
@@ -30,56 +30,87 @@ const FIPS_TO_STATE: Record<string, string> = {
   "56": "WY",
 };
 
-// Default assumptions for map coloring
+// Default assumptions for map coloring: 1200W DC at 70° balcony tilt, $2000 cost
 const DEFAULT_SYSTEM_W = 1200;
 const DEFAULT_COST = 2000;
-const DEFAULT_TILT = 30 as const;
-const DEFAULT_ESCALATOR = 0.03;
+const DEFAULT_TILT = 70 as const;
 
-function getDefaultPayback(stateCode: string): number | null {
+interface UtilityPayback {
+  name: string;
+  ratePerKwh: number;
+  paybackYears: number;
+}
+
+function getUtilityPaybacks(stateCode: string): UtilityPayback[] {
+  const state = (solarData as Record<string, StateData>)[stateCode];
+  const stateUtils = (utilitiesData as Record<string, { utilities: { name: string; ratePerKwh: number; customers: number }[] }>)[stateCode];
+  if (!state || !stateUtils?.utilities?.length) return [];
+
+  return stateUtils.utilities.map((u) => {
+    const estimate = calculateSolarEstimate({
+      systemSizeW: DEFAULT_SYSTEM_W,
+      systemCost: DEFAULT_COST,
+      peakSunHours: state.peakSunHours,
+      ratePerKwh: u.ratePerKwh,
+      tiltAngle: DEFAULT_TILT,
+      annualEscalator: 0.03,
+    });
+    return {
+      name: u.name,
+      ratePerKwh: u.ratePerKwh,
+      paybackYears: estimate.paybackYears,
+    };
+  });
+}
+
+/** Customer-weighted average payback across all utilities in a state */
+function getWeightedPayback(stateCode: string): number | null {
   const state = (solarData as Record<string, StateData>)[stateCode];
   const stateUtils = (utilitiesData as Record<string, { utilities: { name: string; ratePerKwh: number; customers: number }[] }>)[stateCode];
   if (!state || !stateUtils?.utilities?.length) return null;
-  // Use the highest-customer-count utility as default rate
-  const topUtility = stateUtils.utilities.reduce((a, b) => a.customers > b.customers ? a : b);
-  const estimate = calculateSolarEstimate({
-    systemSizeW: DEFAULT_SYSTEM_W,
-    systemCost: DEFAULT_COST,
-    peakSunHours: state.peakSunHours,
-    ratePerKwh: topUtility.ratePerKwh,
-    tiltAngle: DEFAULT_TILT,
-    annualEscalator: DEFAULT_ESCALATOR,
-  });
-  return estimate.paybackYears;
+
+  let totalCustomers = 0;
+  let weightedSum = 0;
+
+  for (const u of stateUtils.utilities) {
+    const estimate = calculateSolarEstimate({
+      systemSizeW: DEFAULT_SYSTEM_W,
+      systemCost: DEFAULT_COST,
+      peakSunHours: state.peakSunHours,
+      ratePerKwh: u.ratePerKwh,
+      tiltAngle: DEFAULT_TILT,
+      annualEscalator: 0.03,
+    });
+    totalCustomers += u.customers;
+    weightedSum += estimate.paybackYears * u.customers;
+  }
+
+  return totalCustomers > 0 ? weightedSum / totalCustomers : null;
 }
 
 function getStateColor(stateCode: string): string {
   const legis = (legislationData as Record<string, LegislationInfo>)[stateCode];
   if (!legis) return "#e5e7eb";
 
-  // Gray out states with no legislation or failed bills
   if (legis.status === "none" || legis.status === "failed") {
     return "#d4d4d8"; // zinc-300
   }
 
-  const payback = getDefaultPayback(stateCode);
+  const payback = getWeightedPayback(stateCode);
   if (payback == null) return "#d4d4d8";
 
-  // For states with legislation: color by ROI
   const verdict = getVerdict(payback);
-
-  // Enacted/approved states get full saturation; introduced states get lighter
   const isActive = legis.status === "enacted" || legis.status === "approved";
 
   switch (verdict) {
     case "no-brainer":
-      return isActive ? "#22c55e" : "#bbf7d0"; // green-500 / green-200
+      return isActive ? "#22c55e" : "#bbf7d0";
     case "great":
-      return isActive ? "#4ade80" : "#dcfce7"; // green-400 / green-100
+      return isActive ? "#4ade80" : "#dcfce7";
     case "worth-considering":
-      return isActive ? "#facc15" : "#fef9c3"; // yellow-400 / yellow-100
+      return isActive ? "#facc15" : "#fef9c3";
     case "tough-roi":
-      return isActive ? "#f87171" : "#fecaca"; // red-400 / red-200
+      return isActive ? "#f87171" : "#fecaca";
   }
 }
 
@@ -102,10 +133,19 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
     peakSunHours: number;
     legislationLabel: string;
     legislationStatus: string;
-    paybackYears: number | null;
+    utilityPaybacks: UtilityPayback[];
     x: number;
     y: number;
   } | null>(null);
+
+  // Pre-compute utility paybacks for all states (they don't change)
+  const allUtilityPaybacks = useMemo(() => {
+    const map: Record<string, UtilityPayback[]> = {};
+    for (const code of Object.values(FIPS_TO_STATE)) {
+      map[code] = getUtilityPaybacks(code);
+    }
+    return map;
+  }, []);
 
   const handleMouseEnter = useCallback(
     (geo: { id: string }, event: React.MouseEvent) => {
@@ -119,12 +159,12 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
         peakSunHours: data.peakSunHours,
         legislationLabel: legis?.label ?? "Unknown",
         legislationStatus: legis?.status ?? "none",
-        paybackYears: getDefaultPayback(stateCode),
+        utilityPaybacks: allUtilityPaybacks[stateCode] ?? [],
         x: event.clientX,
         y: event.clientY,
       });
     },
-    []
+    [allUtilityPaybacks]
   );
 
   const handleMouseMove = useCallback((event: React.MouseEvent) => {
@@ -140,7 +180,7 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
   return (
     <div className="w-full max-w-2xl mx-auto px-4" role="region" aria-label="Interactive U.S. map — select a state to estimate balcony solar savings">
       <p className="text-center text-sm text-zinc-500 mb-2">
-        Click your state to get started
+        Click your state to see economics by utility
       </p>
       <ComposableMap
         projection="geoAlbersUsa"
@@ -160,15 +200,15 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
                 ? getHoverColor(stateCode)
                 : "#d1d5db";
 
-              const stateDataForA11y = stateCode
+              const stateData = stateCode
                 ? (solarData as Record<string, StateData>)[stateCode]
                 : null;
-              const stateName = stateDataForA11y?.name ?? "Unknown";
-              const legisForA11y = stateCode
+              const stateName = stateData?.name ?? "Unknown";
+              const legis = stateCode
                 ? (legislationData as Record<string, LegislationInfo>)[stateCode]
                 : null;
               const ariaText = stateCode
-                ? `${stateName} — ${legisForA11y?.label ?? "No data"}. ${stateDataForA11y ? `Peak sun hours: ${stateDataForA11y.peakSunHours}` : ""}`
+                ? `${stateName} — ${legis?.label ?? "No data"}. ${stateData ? `Peak sun hours: ${stateData.peakSunHours}` : ""}`
                 : undefined;
 
               return (
