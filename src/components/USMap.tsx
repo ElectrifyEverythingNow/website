@@ -138,7 +138,7 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
   }, []);
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4">
+    <div className="w-full max-w-2xl mx-auto px-4" role="region" aria-label="Interactive U.S. map — select a state to estimate balcony solar savings">
       <p className="text-center text-sm text-zinc-500 mb-2">
         Click your state to get started
       </p>
@@ -160,6 +160,17 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
                 ? getHoverColor(stateCode)
                 : "#d1d5db";
 
+              const stateDataForA11y = stateCode
+                ? (solarData as Record<string, StateData>)[stateCode]
+                : null;
+              const stateName = stateDataForA11y?.name ?? "Unknown";
+              const legisForA11y = stateCode
+                ? (legislationData as Record<string, LegislationInfo>)[stateCode]
+                : null;
+              const ariaText = stateCode
+                ? `${stateName} — ${legisForA11y?.label ?? "No data"}. ${stateDataForA11y ? `Peak sun hours: ${stateDataForA11y.peakSunHours}` : ""}`
+                : undefined;
+
               return (
                 <Geography
                   key={geo.rsmKey}
@@ -168,11 +179,20 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
                   stroke={isSelected ? "#1d4ed8" : "#ffffff"}
                   strokeWidth={isSelected ? 2 : 0.5}
                   className="cursor-pointer outline-none"
+                  tabIndex={stateCode ? 0 : -1}
+                  role="button"
+                  aria-label={ariaText}
                   onMouseEnter={(e) => handleMouseEnter(geo, e)}
                   onMouseMove={handleMouseMove}
                   onMouseLeave={handleMouseLeave}
                   onClick={() => {
                     if (stateCode) onSelectState(stateCode);
+                  }}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (stateCode && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault();
+                      onSelectState(stateCode);
+                    }
                   }}
                   style={{
                     default: { outline: "none" },
