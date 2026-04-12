@@ -11,10 +11,12 @@ import { ColorLegend } from "./ColorLegend";
 import solarData from "@/data/solar-hours.json";
 import legislationData from "@/data/legislation.json";
 import utilitiesData from "@/data/utilities.json";
+import utilityCounties from "@/data/utility-counties.json";
 import type { StateData, LegislationInfo } from "@/lib/types";
 import { calculateSolarEstimate, getVerdict } from "@/lib/calculations";
 
-const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+const STATES_GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+const COUNTIES_GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
 
 const FIPS_TO_STATE: Record<string, string> = {
   "01": "AL", "02": "AK", "04": "AZ", "05": "AR", "06": "CA",
@@ -30,15 +32,61 @@ const FIPS_TO_STATE: Record<string, string> = {
   "56": "WY",
 };
 
-// Default assumptions for map coloring: 1200W DC at 70° balcony tilt, $2000 cost
+// Default assumptions for map coloring
 const DEFAULT_SYSTEM_W = 1200;
 const DEFAULT_COST = 2000;
 const DEFAULT_TILT = 70 as const;
+
+const countyMap = utilityCounties as Record<string, string>;
 
 interface UtilityPayback {
   name: string;
   ratePerKwh: number;
   paybackYears: number;
+}
+
+/** Build a lookup: utility name -> payback color for the map */
+function buildUtilityColorMap(): Record<string, string> {
+  const colors: Record<string, string> = {};
+  const allUtils = utilitiesData as Record<string, { state: string; utilities: { name: string; ratePerKwh: number; customers: number }[] }>;
+
+  for (const [stateCode, stateData] of Object.entries(allUtils)) {
+    const solar = (solarData as Record<string, StateData>)[stateCode];
+    if (!solar) continue;
+    const legis = (legislationData as Record<string, LegislationInfo>)[stateCode];
+    const hasLegislation = legis && legis.status !== "none" && legis.status !== "failed";
+    const isActive = legis && (legis.status === "enacted" || legis.status === "approved");
+
+    for (const u of stateData.utilities) {
+      if (colors[u.name]) continue; // already computed
+      const estimate = calculateSolarEstimate({
+        systemSizeW: DEFAULT_SYSTEM_W,
+        systemCost: DEFAULT_COST,
+        peakSunHours: solar.peakSunHours,
+        ratePerKwh: u.ratePerKwh,
+        tiltAngle: DEFAULT_TILT,
+        annualEscalator: 0.03,
+      });
+
+      if (!hasLegislation) {
+        colors[u.name] = "#d4d4d8"; // zinc-300: no legislation
+        continue;
+      }
+
+      const verdict = getVerdict(estimate.paybackYears);
+      switch (verdict) {
+        case "no-brainer":
+          colors[u.name] = isActive ? "#22c55e" : "#bbf7d0"; break;
+        case "great":
+          colors[u.name] = isActive ? "#4ade80" : "#dcfce7"; break;
+        case "worth-considering":
+          colors[u.name] = isActive ? "#facc15" : "#fef9c3"; break;
+        case "tough-roi":
+          colors[u.name] = isActive ? "#f87171" : "#fecaca"; break;
+      }
+    }
+  }
+  return colors;
 }
 
 function getUtilityPaybacks(stateCode: string): UtilityPayback[] {
@@ -55,71 +103,8 @@ function getUtilityPaybacks(stateCode: string): UtilityPayback[] {
       tiltAngle: DEFAULT_TILT,
       annualEscalator: 0.03,
     });
-    return {
-      name: u.name,
-      ratePerKwh: u.ratePerKwh,
-      paybackYears: estimate.paybackYears,
-    };
+    return { name: u.name, ratePerKwh: u.ratePerKwh, paybackYears: estimate.paybackYears };
   });
-}
-
-/** Customer-weighted average payback across all utilities in a state */
-function getWeightedPayback(stateCode: string): number | null {
-  const state = (solarData as Record<string, StateData>)[stateCode];
-  const stateUtils = (utilitiesData as Record<string, { utilities: { name: string; ratePerKwh: number; customers: number }[] }>)[stateCode];
-  if (!state || !stateUtils?.utilities?.length) return null;
-
-  let totalCustomers = 0;
-  let weightedSum = 0;
-
-  for (const u of stateUtils.utilities) {
-    const estimate = calculateSolarEstimate({
-      systemSizeW: DEFAULT_SYSTEM_W,
-      systemCost: DEFAULT_COST,
-      peakSunHours: state.peakSunHours,
-      ratePerKwh: u.ratePerKwh,
-      tiltAngle: DEFAULT_TILT,
-      annualEscalator: 0.03,
-    });
-    totalCustomers += u.customers;
-    weightedSum += estimate.paybackYears * u.customers;
-  }
-
-  return totalCustomers > 0 ? weightedSum / totalCustomers : null;
-}
-
-function getStateColor(stateCode: string): string {
-  const legis = (legislationData as Record<string, LegislationInfo>)[stateCode];
-  if (!legis) return "#e5e7eb";
-
-  if (legis.status === "none" || legis.status === "failed") {
-    return "#d4d4d8"; // zinc-300
-  }
-
-  const payback = getWeightedPayback(stateCode);
-  if (payback == null) return "#d4d4d8";
-
-  const verdict = getVerdict(payback);
-  const isActive = legis.status === "enacted" || legis.status === "approved";
-
-  switch (verdict) {
-    case "no-brainer":
-      return isActive ? "#22c55e" : "#bbf7d0";
-    case "great":
-      return isActive ? "#4ade80" : "#dcfce7";
-    case "worth-considering":
-      return isActive ? "#facc15" : "#fef9c3";
-    case "tough-roi":
-      return isActive ? "#f87171" : "#fecaca";
-  }
-}
-
-function getHoverColor(stateCode: string): string {
-  const legis = (legislationData as Record<string, LegislationInfo>)[stateCode];
-  if (!legis || legis.status === "none" || legis.status === "failed") {
-    return "#a1a1aa"; // zinc-400
-  }
-  return "#60a5fa"; // blue-400
 }
 
 interface USMapProps {
@@ -138,7 +123,10 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
     y: number;
   } | null>(null);
 
-  // Pre-compute utility paybacks for all states (they don't change)
+  // Pre-compute: utility name -> fill color
+  const utilityColors = useMemo(() => buildUtilityColorMap(), []);
+
+  // Pre-compute utility paybacks for tooltip
   const allUtilityPaybacks = useMemo(() => {
     const map: Record<string, UtilityPayback[]> = {};
     for (const code of Object.values(FIPS_TO_STATE)) {
@@ -188,18 +176,42 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
         height={500}
         projectionConfig={{ scale: 1050, translate: [400, 260] }}
       >
-        <Geographies geography={GEO_URL}>
+        {/* Layer 1: County fills colored by utility economics */}
+        <Geographies geography={COUNTIES_GEO_URL}>
+          {({ geographies }) =>
+            geographies.map((geo) => {
+              const countyFips = geo.id as string;
+              const utilityName = countyMap[countyFips];
+              const fillColor = utilityName
+                ? (utilityColors[utilityName] ?? "#e5e7eb")
+                : "#e5e7eb"; // unmapped county: light gray
+
+              return (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  fill={fillColor}
+                  stroke="#f4f4f5"
+                  strokeWidth={0.15}
+                  className="pointer-events-none"
+                  tabIndex={-1}
+                  style={{
+                    default: { outline: "none" },
+                    hover: { outline: "none" },
+                    pressed: { outline: "none" },
+                  }}
+                />
+              );
+            })
+          }
+        </Geographies>
+
+        {/* Layer 2: State outlines on top — handles all interaction */}
+        <Geographies geography={STATES_GEO_URL}>
           {({ geographies }) =>
             geographies.map((geo) => {
               const stateCode = FIPS_TO_STATE[geo.id];
               const isSelected = stateCode === selectedState;
-              const fillColor = stateCode
-                ? getStateColor(stateCode)
-                : "#e5e7eb";
-              const hoverFill = stateCode
-                ? getHoverColor(stateCode)
-                : "#d1d5db";
-
               const stateData = stateCode
                 ? (solarData as Record<string, StateData>)[stateCode]
                 : null;
@@ -215,9 +227,9 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={fillColor}
+                  fill="transparent"
                   stroke={isSelected ? "#1d4ed8" : "#ffffff"}
-                  strokeWidth={isSelected ? 2 : 0.5}
+                  strokeWidth={isSelected ? 2.5 : 1}
                   className="cursor-pointer outline-none"
                   tabIndex={stateCode ? 0 : -1}
                   role="button"
@@ -237,13 +249,13 @@ export function USMap({ selectedState, onSelectState }: USMapProps) {
                   style={{
                     default: { outline: "none" },
                     hover: {
-                      fill: hoverFill,
+                      fill: "rgba(96, 165, 250, 0.15)",
                       stroke: "#1d4ed8",
                       strokeWidth: 1.5,
                       outline: "none",
                     },
                     pressed: {
-                      fill: hoverFill,
+                      fill: "rgba(96, 165, 250, 0.15)",
                       outline: "none",
                     },
                   }}
