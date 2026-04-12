@@ -98,10 +98,18 @@ section{padding:6rem 2rem}
 .directory-search button:hover{background:var(--green-dark)}
 .directory-note{font-size:.8rem;color:rgba(255,255,255,.4);margin-top:.75rem}
 
-/* ABOUT */
+/* ABOUT / TRUST */
 .about-section{background:var(--white);border-top:1px solid rgba(0,0,0,.06)}
 .about-section .inner{max-width:700px;margin:0 auto}
 .about-section p{font-size:1.1rem;color:var(--slate);line-height:1.7;margin-bottom:1rem}
+.trust-section{background:var(--white);border-top:1px solid rgba(0,0,0,.06);padding:4rem 2rem}
+.trust-section .inner{max-width:700px;margin:0 auto;text-align:center}
+.trust-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;margin-top:2rem;text-align:center}
+.trust-item{padding:1rem}
+.trust-icon{font-size:1.5rem;margin-bottom:.5rem}
+.trust-label{font-family:var(--sans);font-weight:600;font-size:.95rem;color:var(--dark);margin-bottom:.35rem}
+.trust-detail{font-family:var(--sans);font-size:.8rem;color:var(--slate);line-height:1.5}
+@media(max-width:600px){.trust-grid{grid-template-columns:1fr}}
 
 /* NOTIFY */
 .notify-section{background:var(--warm-gray);text-align:center}
@@ -525,6 +533,30 @@ async function loadVotes() {
 
 loadVotes();
 </script>
+
+<!-- ═══ TRUST ═══ -->
+<section class="trust-section">
+  <div class="inner">
+    <p class="section-label">Why trust these tools?</p>
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-icon">📊</div>
+        <div class="trust-label">Real data sources</div>
+        <div class="trust-detail">NREL PVWatts, EIA electricity rates, NAHB appliance lifespans, IRA rebate provisions. Every number is cited.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">👤</div>
+        <div class="trust-label">Built by an operator</div>
+        <div class="trust-detail"><a href="https://joshlake.ai" target="_blank" style="color:var(--green)">Josh Lake</a> — MIT '07, co-founded <a href="https://elephantenergy.com" target="_blank" style="color:var(--green)">Elephant Energy</a>, 15+ years in clean energy from solar to EVs to heat pumps.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🔓</div>
+        <div class="trust-label">No data collected</div>
+        <div class="trust-detail">All calculations run in your browser. No login, no tracking, no selling your info. Just answers.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <footer>
   <p>&copy; 2026 ElectrifyEverythingNow.com</p>

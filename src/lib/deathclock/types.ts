@@ -7,6 +7,9 @@ export interface ApplianceDefinition {
   upgradeTo: string;
   minLifespan: number;
   maxLifespan: number;
+  emergencyCost: string;
+  plannedCost: string;
+  rebateNote: string;
 }
 
 export interface ApplianceFormValues {
@@ -32,6 +35,9 @@ export interface ApplianceResult {
   yearsRemaining: number;
   lifeConsumedPercent: number;
   urgency: Urgency;
+  emergencyCost: string;
+  plannedCost: string;
+  rebateNote: string;
 }
 
 export interface VehicleResult {

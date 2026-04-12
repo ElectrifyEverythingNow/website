@@ -8,6 +8,9 @@ export const APPLIANCES: ApplianceDefinition[] = [
     upgradeTo: "Heat Pump",
     minLifespan: 15,
     maxLifespan: 20,
+    emergencyCost: "$5,000–$8,000",
+    plannedCost: "$8,000–$15,000",
+    rebateNote: "Up to $8,000 in IRA heat pump rebates",
   },
   {
     id: "central_ac",
@@ -16,6 +19,9 @@ export const APPLIANCES: ApplianceDefinition[] = [
     upgradeTo: "Heat Pump",
     minLifespan: 15,
     maxLifespan: 20,
+    emergencyCost: "$4,000–$7,000",
+    plannedCost: "$8,000–$15,000",
+    rebateNote: "Up to $8,000 in IRA heat pump rebates",
   },
   {
     id: "water_heater",
@@ -24,6 +30,9 @@ export const APPLIANCES: ApplianceDefinition[] = [
     upgradeTo: "Heat Pump Water Heater",
     minLifespan: 8,
     maxLifespan: 12,
+    emergencyCost: "$1,500–$3,000",
+    plannedCost: "$2,500–$4,500",
+    rebateNote: "Up to $1,750 in IRA HPWH rebates",
   },
   {
     id: "dryer",
@@ -32,6 +41,9 @@ export const APPLIANCES: ApplianceDefinition[] = [
     upgradeTo: "Heat Pump Dryer",
     minLifespan: 10,
     maxLifespan: 13,
+    emergencyCost: "$500–$1,000",
+    plannedCost: "$800–$1,400",
+    rebateNote: "Up to $840 in IRA appliance rebates",
   },
   {
     id: "stove",
@@ -40,5 +52,8 @@ export const APPLIANCES: ApplianceDefinition[] = [
     upgradeTo: "Induction Range",
     minLifespan: 13,
     maxLifespan: 15,
+    emergencyCost: "$600–$1,200",
+    plannedCost: "$1,000–$3,000",
+    rebateNote: "Up to $840 in IRA appliance rebates",
   },
 ];

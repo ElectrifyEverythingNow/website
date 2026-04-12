@@ -14,7 +14,12 @@ export function ApplianceInput({ appliance, installYear, skipped, onChange, onTo
       style={{ background: "#f8fafc", borderColor: "#e2e8f0" }}>
       <div className="text-3xl flex-shrink-0 mt-0.5">{appliance.emoji}</div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold text-gray-900">{appliance.name}</div>
+        <div className="flex justify-between items-center">
+          <div className="text-sm font-semibold text-gray-900">{appliance.name}</div>
+          <div className="text-[11px] text-gray-400">
+            Avg life: {appliance.minLifespan}–{appliance.maxLifespan} yrs
+          </div>
+        </div>
         <div className="text-xs mb-2 text-een-green">→ {appliance.upgradeTo}</div>
         {!skipped && (
           <input

@@ -16,6 +16,21 @@ function initialFormState(): ApplianceFormState {
   );
 }
 
+function getSummary(results: AnyResult[]): { critical: number; warning: number; good: number; label: string } {
+  const critical = results.filter((r) => r.urgency === "critical").length;
+  const warning = results.filter((r) => r.urgency === "warning").length;
+  const good = results.filter((r) => r.urgency === "good").length;
+
+  let label: string;
+  if (critical >= 2) label = "Multiple appliances are on borrowed time. Start planning now.";
+  else if (critical === 1) label = "One appliance needs attention soon. Don't wait for it to fail.";
+  else if (warning >= 2) label = "A few appliances are aging. Good time to start researching upgrades.";
+  else if (warning === 1) label = "Mostly healthy, but one is getting up there.";
+  else label = "Your home is in great shape. No urgent replacements needed.";
+
+  return { critical, warning, good, label };
+}
+
 export default function DeathClockPage() {
   const [applianceValues, setApplianceValues] = useState<ApplianceFormState>(initialFormState);
   const [vehicleValues, setVehicleValues] = useState<VehicleFormValues>({
@@ -69,6 +84,8 @@ export default function DeathClockPage() {
   const hasAnyInput = APPLIANCES.some(
     (a) => !applianceValues[a.id].skipped && applianceValues[a.id].installYear
   ) || (!vehicleValues.skipped && vehicleValues.modelYear && vehicleValues.currentMiles);
+
+  const summary = results && results.length > 0 ? getSummary(results) : null;
 
   return (
     <div className="min-h-screen" style={{ background: "#ffffff" }}>
@@ -157,12 +174,52 @@ export default function DeathClockPage() {
                 No appliances entered. Add at least one above.
               </p>
             ) : (
-              results.map((result) => (
-                <ResultCard key={result.id} result={result} />
-              ))
+              <>
+                {/* Summary card */}
+                {summary && (
+                  <div className="rounded-xl border p-5 mb-6 text-center" style={{ background: "#f8fafc", borderColor: "#e2e8f0" }}>
+                    <div className="flex justify-center gap-4 mb-3">
+                      {summary.critical > 0 && (
+                        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ color: "#dc2626", background: "#fee2e2" }}>
+                          {summary.critical} critical
+                        </span>
+                      )}
+                      {summary.warning > 0 && (
+                        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ color: "#d97706", background: "#fef3c7" }}>
+                          {summary.warning} aging
+                        </span>
+                      )}
+                      {summary.good > 0 && (
+                        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ color: "#16a34a", background: "#dcfce7" }}>
+                          {summary.good} healthy
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600">{summary.label}</p>
+                  </div>
+                )}
+
+                {results.map((result) => (
+                  <ResultCard key={result.id} result={result} />
+                ))}
+              </>
             )}
           </div>
         )}
+
+        {/* Methodology */}
+        <div className="mt-16 pt-8 border-t" style={{ borderColor: "#e2e8f0" }}>
+          <p className="text-[11px] text-gray-400 leading-relaxed text-center">
+            Lifespan estimates based on data from the National Association of Home Builders (NAHB),
+            ASHRAE, and Consumer Reports average appliance lifespan studies. Cost ranges reflect
+            national averages from HomeAdvisor and Angi (2024–2025). Rebate amounts from the
+            Inflation Reduction Act (IRA) home electrification provisions. Your actual results may
+            vary based on usage, maintenance, climate, and local pricing.
+          </p>
+          <p className="text-[11px] text-gray-400 mt-3 text-center">
+            Built by <a href="https://joshlake.ai" className="underline hover:text-gray-600">Josh Lake</a> · <a href="https://electrifyeverythingnow.com" className="underline hover:text-gray-600">ElectrifyEverythingNow</a>
+          </p>
+        </div>
       </div>
     </div>
   );
