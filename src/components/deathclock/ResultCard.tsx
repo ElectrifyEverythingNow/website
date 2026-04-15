@@ -33,28 +33,12 @@ function getMetaLine(result: AnyResult): string {
   return `Installed ${result.installYear} · Avg lifespan ${result.minLifespan}–${result.maxLifespan} yrs · Dies ~${result.projectedDeathYear}`;
 }
 
-function getCostLine(result: AnyResult): string | null {
-  if ("emergencyCost" in result) {
-    return `Emergency replacement: ${result.emergencyCost} · Planned upgrade: ${result.plannedCost}`;
-  }
-  return null;
-}
-
-function getRebateLine(result: AnyResult): string | null {
-  if ("rebateNote" in result) {
-    return result.rebateNote;
-  }
-  return null;
-}
-
 interface Props {
   result: AnyResult;
 }
 
 export function ResultCard({ result }: Props) {
   const styles = URGENCY_STYLES[result.urgency];
-  const costLine = getCostLine(result);
-  const rebateLine = getRebateLine(result);
 
   return (
     <div
@@ -76,14 +60,6 @@ export function ResultCard({ result }: Props) {
         <div className="text-xs mt-0.5 text-een-green">
           Upgrade → {result.upgradeTo}
         </div>
-        {costLine && (
-          <div className="text-[11px] text-gray-400 mt-1">{costLine}</div>
-        )}
-        {rebateLine && (
-          <div className="text-[11px] font-medium mt-0.5" style={{ color: "#16a34a" }}>
-            💰 {rebateLine}
-          </div>
-        )}
         <div
           className="mt-2 h-1.5 rounded-full overflow-hidden"
           style={{ background: "#e2e8f0" }}

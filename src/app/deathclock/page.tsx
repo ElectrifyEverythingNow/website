@@ -211,10 +211,8 @@ export default function DeathClockPage() {
         <div className="mt-16 pt-8 border-t" style={{ borderColor: "#e2e8f0" }}>
           <p className="text-[11px] text-gray-400 leading-relaxed text-center">
             Lifespan estimates based on data from the National Association of Home Builders (NAHB),
-            ASHRAE, and Consumer Reports average appliance lifespan studies. Cost ranges reflect
-            national averages from HomeAdvisor and Angi (2024–2025). Rebate amounts from the
-            Inflation Reduction Act (IRA) home electrification provisions. Your actual results may
-            vary based on usage, maintenance, climate, and local pricing.
+            ASHRAE, and Consumer Reports average appliance lifespan studies. Your actual results may
+            vary based on usage, maintenance, and climate.
           </p>
           <p className="text-[11px] text-gray-400 mt-3 text-center">
             Built by <a href="https://joshlake.ai" className="underline hover:text-gray-600">Josh Lake</a> · <a href="https://electrifyeverythingnow.com" className="underline hover:text-gray-600">ElectrifyEverythingNow</a>

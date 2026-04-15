@@ -37,9 +37,6 @@ export function getApplianceResult(
     yearsRemaining,
     lifeConsumedPercent: getLifeConsumedPercent(installYear, midpoint),
     urgency: getUrgency(yearsRemaining),
-    emergencyCost: appliance.emergencyCost,
-    plannedCost: appliance.plannedCost,
-    rebateNote: appliance.rebateNote,
   };
 }
 
