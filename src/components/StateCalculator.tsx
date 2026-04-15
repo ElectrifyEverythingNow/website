@@ -7,7 +7,6 @@ import { UtilityComparison } from "@/components/UtilityComparison";
 import { SystemInputs } from "@/components/SystemInputs";
 import { ResultsCard } from "@/components/ResultsCard";
 import { RefineEstimate } from "@/components/RefineEstimate";
-import { QuoteForm } from "@/components/QuoteForm";
 import { ShareResults } from "@/components/ShareResults";
 import { LegislationSection } from "@/components/LegislationSection";
 import { EducationalContent } from "@/components/EducationalContent";
@@ -226,14 +225,6 @@ export function StateCalculator({ initialStateCode }: StateCalculatorProps) {
             />
           </div>
           <div className="mt-4 flex flex-col gap-3">
-            <QuoteForm
-              state={selectedState}
-              utility={selectedUtility?.name ?? "Custom rate"}
-              systemSizeW={systemSizeW}
-              systemCost={systemCost}
-              estimatedPayback={estimate.paybackYears}
-              estimatedAnnualSavings={estimate.annualSavings}
-            />
             <ShareResults
               estimate={estimate}
               state={selectedState}
@@ -258,8 +249,8 @@ export function StateCalculator({ initialStateCode }: StateCalculatorProps) {
           More Free Electrification Tools
         </h2>
         <p className="text-green-100 max-w-lg mx-auto mb-5">
-          Rebate calculators, heat pump sizing tools, and more — all free for
-          homeowners.
+          Rate plan optimizer, appliance lifetime tracker, and more — all free for
+          homeowners nationwide.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <a

@@ -8,7 +8,7 @@ import { findBestPlan } from "@/lib/rate-calculator";
 import type { ComparisonResult } from "@/lib/rate-calculator";
 
 const DEFAULT_INPUTS: RateInputValues = {
-  zipCode: "80302",
+  zipCode: "",
   homeSqFt: 2500,
   hasEv: true,
   evMilesPerMonth: 1000,
