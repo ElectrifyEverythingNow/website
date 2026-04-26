@@ -31,15 +31,16 @@ export function LegislationSection() {
         <p className="text-sm text-zinc-500 mb-4">
           Lawmakers in{" "}
           <a
-            href="https://www.canarymedia.com/articles/solar/balcony-solar-taking-state-legislatures-by-storm"
+            href="https://www.canarymedia.com/articles/solar/states-passing-balcony-solar-laws"
             target="_blank"
             rel="noopener noreferrer"
             className="text-green-600 hover:text-green-700 underline underline-offset-2"
           >
-            28+ states
+            33+ states
           </a>{" "}
-          have introduced bills to legalize plug-in solar. Here are the states
-          leading the way.
+          have introduced bills to legalize plug-in solar — and Utah, Maine, and
+          Washington have already enacted laws. Here are the states leading the
+          way.
         </p>
 
         <div className="space-y-3">
