@@ -1,38 +1,55 @@
 "use client";
 
 import type {
-  AnalyzePanelResponse,
+  DetectedPanel,
+  PanelAnalysis,
+  Recommendations,
   UpgradeId,
 } from "@/lib/panel-checker/types";
 import { getUpgrade } from "@/lib/panel-checker/types";
 import { ConfidenceBadge } from "./ConfidenceBadge";
+import { EditableDetected } from "./EditableDetected";
 
 interface PanelResultsProps {
-  response: AnalyzePanelResponse;
+  analysis: PanelAnalysis;
+  effectiveDetected: DetectedPanel;
+  aiDetected: DetectedPanel;
+  overrides: Partial<DetectedPanel>;
+  onOverridesChange: (overrides: Partial<DetectedPanel>) => void;
+  recommendations: Recommendations;
   selectedUpgrades: UpgradeId[];
 }
 
-function verdictLine(r: AnalyzePanelResponse): string {
-  if (r.recommendations.conditionConcern) {
+const NOISE_LOAD_LABELS = new Set(["unknown", "none", "n/a", "na"]);
+
+function verdictLine(r: Recommendations): string {
+  if (r.conditionConcern) {
     return "Panel condition may drive replacement.";
   }
-  if (r.recommendations.spacesShort === 0 && r.recommendations.spacesNeeded > 0) {
+  if (r.spacesShort === 0 && r.spacesNeeded > 0) {
     return "Open spaces may be enough.";
   }
-  if (r.recommendations.spacesShort > 0) {
+  if (r.spacesShort > 0) {
     return "Check cheaper options first.";
   }
   return "Plan with an electrician using these notes.";
 }
 
-function fmtNumber(n: number): string {
-  if (!n) return "—";
-  return String(n);
-}
-
-export function PanelResults({ response, selectedUpgrades }: PanelResultsProps) {
-  const { analysis, recommendations } = response;
-  const d = analysis.detected;
+export function PanelResults({
+  analysis,
+  effectiveDetected,
+  aiDetected,
+  overrides,
+  onOverridesChange,
+  recommendations,
+  selectedUpgrades,
+}: PanelResultsProps) {
+  const visibleLargeLoads = (effectiveDetected.existingLargeLoads || []).filter(
+    (l) => !NOISE_LOAD_LABELS.has(l.toLowerCase()),
+  );
+  const visibleConditionFlags = (effectiveDetected.conditionFlags || []).filter(
+    (f) => f.toLowerCase() !== "none",
+  );
 
   return (
     <div className="space-y-5">
@@ -42,13 +59,18 @@ export function PanelResults({ response, selectedUpgrades }: PanelResultsProps) 
           Summary verdict
         </div>
         <div className="text-xl font-bold text-zinc-900 mt-1">
-          {verdictLine(response)}
+          {verdictLine(recommendations)}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
           <ConfidenceBadge confidence={analysis.overallConfidence} />
           {recommendations.conditionConcern && (
             <span className="inline-flex items-center rounded-full bg-red-100 text-red-800 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider">
               Condition concern
+            </span>
+          )}
+          {Object.keys(overrides).length > 0 && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider">
+              User-edited details
             </span>
           )}
         </div>
@@ -61,52 +83,41 @@ export function PanelResults({ response, selectedUpgrades }: PanelResultsProps) 
         )}
       </div>
 
-      {/* Detected facts */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500">
-          Detected panel
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
-          <Tile label="Brand" value={d.brand} />
-          <Tile
-            label="Main breaker"
-            value={d.mainBreakerAmps ? `${d.mainBreakerAmps} A` : "Unknown"}
-          />
-          <Tile
-            label="Spaces (open / total)"
-            value={`${fmtNumber(d.openFullSpaces)} / ${fmtNumber(d.totalSpaces)}`}
-          />
-          <Tile label="Tandem/quad" value={d.tandemQuadCompatibility} />
-        </div>
-        {d.notes && (
-          <p className="text-xs text-zinc-500 italic mt-3">&ldquo;{d.notes}&rdquo;</p>
-        )}
-        {d.existingLargeLoads.length > 0 && (
-          <div className="mt-3">
-            <div className="text-xs uppercase tracking-wider text-zinc-500 font-bold">
-              Existing large loads
+      {/* Editable detected facts */}
+      <EditableDetected
+        detected={effectiveDetected}
+        aiDetected={aiDetected}
+        overrides={overrides}
+        onChange={onOverridesChange}
+      />
+
+      {/* Large loads + condition pills (display only) */}
+      {(visibleLargeLoads.length > 0 || visibleConditionFlags.length > 0) && (
+        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-3">
+          {visibleLargeLoads.length > 0 && (
+            <div>
+              <div className="text-xs uppercase tracking-wider text-zinc-500 font-bold">
+                Existing large loads (AI read)
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {visibleLargeLoads.map((l, i) => (
+                  <span
+                    key={i}
+                    className="text-xs rounded-full bg-zinc-100 text-zinc-700 px-2 py-0.5"
+                  >
+                    {l}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {d.existingLargeLoads.map((l, i) => (
-                <span
-                  key={i}
-                  className="text-xs rounded-full bg-zinc-100 text-zinc-700 px-2 py-0.5"
-                >
-                  {l}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-        {d.conditionFlags.filter((f) => f.toLowerCase() !== "none").length > 0 && (
-          <div className="mt-3">
-            <div className="text-xs uppercase tracking-wider text-zinc-500 font-bold">
-              Condition flags
-            </div>
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {d.conditionFlags
-                .filter((f) => f.toLowerCase() !== "none")
-                .map((l, i) => (
+          )}
+          {visibleConditionFlags.length > 0 && (
+            <div>
+              <div className="text-xs uppercase tracking-wider text-zinc-500 font-bold">
+                Condition flags
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {visibleConditionFlags.map((l, i) => (
                   <span
                     key={i}
                     className="text-xs rounded-full bg-amber-100 text-amber-800 px-2 py-0.5"
@@ -114,10 +125,11 @@ export function PanelResults({ response, selectedUpgrades }: PanelResultsProps) 
                     {l}
                   </span>
                 ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Selected upgrades + capacity needed */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">

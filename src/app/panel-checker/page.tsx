@@ -7,10 +7,12 @@ import { UpgradeSelection } from "@/components/panel-checker/UpgradeSelection";
 import { PanelResults } from "@/components/panel-checker/PanelResults";
 import { ShareButtons } from "@/components/panel-checker/ShareButtons";
 import {
+  computeRecommendations,
   defaultSelectedUpgrades,
 } from "@/lib/panel-checker/recommendations";
 import type {
   AnalyzePanelResponse,
+  DetectedPanel,
   UpgradeId,
 } from "@/lib/panel-checker/types";
 
@@ -32,6 +34,7 @@ function PanelCheckerInner() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [response, setResponse] = useState<AnalyzePanelResponse | null>(null);
+  const [overrides, setOverrides] = useState<Partial<DetectedPanel>>({});
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -80,6 +83,7 @@ function PanelCheckerInner() {
     setIsAnalyzing(true);
     setApiError(null);
     setResponse(null);
+    setOverrides({});
 
     const form = new FormData();
     form.append("image", file);
@@ -211,19 +215,43 @@ function PanelCheckerInner() {
               Reading your panel photo…
             </div>
           )}
-          {response && (
-            <>
-              {lowConfidence && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 print:hidden">
-                  We couldn&rsquo;t read the panel clearly. Results are lower
-                  confidence — try a clearer photo of the full panel and
-                  inside-door label for better answers.
-                </div>
-              )}
-              <PanelResults response={response} selectedUpgrades={selected} />
-              <ShareButtons onPrint={handlePrint} />
-            </>
-          )}
+          {response && (() => {
+            const aiDetected = response.analysis.detected;
+            const effectiveDetected: DetectedPanel = {
+              ...aiDetected,
+              ...overrides,
+            };
+            const effectiveAnalysis = {
+              ...response.analysis,
+              detected: effectiveDetected,
+            };
+            const liveRecommendations = computeRecommendations(
+              effectiveAnalysis,
+              selected,
+            );
+            return (
+              <>
+                {lowConfidence && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 print:hidden">
+                    We couldn&rsquo;t read the panel clearly. Results are lower
+                    confidence — edit any field below if you know better, or
+                    try a clearer photo of the full panel and inside-door
+                    label.
+                  </div>
+                )}
+                <PanelResults
+                  analysis={response.analysis}
+                  effectiveDetected={effectiveDetected}
+                  aiDetected={aiDetected}
+                  overrides={overrides}
+                  onOverridesChange={setOverrides}
+                  recommendations={liveRecommendations}
+                  selectedUpgrades={selected}
+                />
+                <ShareButtons onPrint={handlePrint} />
+              </>
+            );
+          })()}
         </div>
       </div>
 
