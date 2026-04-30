@@ -7,6 +7,7 @@ import type {
   UpgradeId,
 } from "@/lib/panel-checker/types";
 import { getUpgrade } from "@/lib/panel-checker/types";
+import { getVerdict } from "@/lib/panel-checker/verdict";
 import { ConfidenceBadge } from "./ConfidenceBadge";
 import { EditableDetected } from "./EditableDetected";
 
@@ -22,18 +23,15 @@ interface PanelResultsProps {
 
 const NOISE_LOAD_LABELS = new Set(["unknown", "none", "n/a", "na"]);
 
-function verdictLine(r: Recommendations): string {
-  if (r.conditionConcern) {
-    return "Panel condition may drive replacement.";
-  }
-  if (r.spacesShort === 0 && r.spacesNeeded > 0) {
-    return "Open spaces may be enough.";
-  }
-  if (r.spacesShort > 0) {
-    return "Check cheaper options first.";
-  }
-  return "Plan with an electrician using these notes.";
-}
+const VERDICT_TONE_STYLES: Record<
+  ReturnType<typeof getVerdict>["tone"],
+  string
+> = {
+  good: "from-green-50 to-white border-green-200",
+  caution: "from-amber-50 to-white border-amber-200",
+  concern: "from-red-50 to-white border-red-200",
+  "low-confidence": "from-zinc-50 to-white border-zinc-200",
+};
 
 export function PanelResults({
   analysis,
@@ -51,17 +49,27 @@ export function PanelResults({
     (f) => f.toLowerCase() !== "none",
   );
 
+  const verdict = getVerdict(
+    { ...analysis, detected: effectiveDetected },
+    recommendations,
+  );
+
   return (
     <div className="space-y-5">
       {/* Verdict */}
-      <div className="rounded-2xl border border-zinc-200 bg-gradient-to-b from-green-50 to-white p-5 shadow-sm">
+      <div
+        className={`rounded-2xl border p-5 shadow-sm bg-gradient-to-b ${VERDICT_TONE_STYLES[verdict.tone]}`}
+      >
         <div className="text-xs uppercase tracking-wider text-zinc-500 font-bold">
           Summary verdict
         </div>
-        <div className="text-xl font-bold text-zinc-900 mt-1">
-          {verdictLine(recommendations)}
+        <div className="text-xl sm:text-2xl font-bold text-zinc-900 mt-1 leading-snug">
+          {verdict.headline}
         </div>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <p className="text-sm text-zinc-700 mt-2 leading-relaxed">
+          {verdict.detail}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
           <ConfidenceBadge confidence={analysis.overallConfidence} />
           {recommendations.conditionConcern && (
             <span className="inline-flex items-center rounded-full bg-red-100 text-red-800 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider">
