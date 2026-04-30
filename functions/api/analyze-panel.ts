@@ -101,6 +101,27 @@ export const onRequestOptions: PagesFunction = async () =>
   new Response(null, { headers: CORS_HEADERS });
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+  // Top-level catch — guarantees we always return a JSON body the client can
+  // parse, instead of letting Cloudflare wrap an unhandled throw as a 502
+  // HTML page.
+  try {
+    return await handlePost(context);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[analyze-panel] unhandled error:", message);
+    return jsonResponse(
+      {
+        error:
+          "The analysis service hit an unexpected error. Please try again with a clearer photo.",
+      },
+      500,
+    );
+  }
+};
+
+async function handlePost(
+  context: Parameters<PagesFunction<Env>>[0],
+): Promise<Response> {
   const { request, env } = context;
 
   if (!env.OPENAI_API_KEY) {
@@ -185,23 +206,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     analysis = normalizeAnalysis(raw);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return jsonResponse(
-      {
-        error:
-          "AI vision read failed. Please try again or use a clearer image.",
-        analysis: fallbackAnalysis(`Vision call failed: ${message}`),
-        recommendations: computeRecommendations(
-          fallbackAnalysis(`Vision call failed: ${message}`),
-          upgradeIds,
-        ),
-      },
-      502,
-    );
+    console.error("[analyze-panel] OpenAI call failed:", message);
+    const fb = fallbackAnalysis(`Vision call failed: ${message}`);
+    // Return 200 with a fallback so the frontend can still render the
+    // editable detected-panel form and the user can fill values manually.
+    return jsonResponse({
+      warning:
+        "We couldn't read the panel automatically. Fill in the details below or try a clearer photo.",
+      analysis: fb,
+      recommendations: computeRecommendations(fb, upgradeIds),
+    });
   }
 
   const recommendations = computeRecommendations(analysis, upgradeIds);
   return jsonResponse({ analysis, recommendations });
-};
+}
 
 async function fileToDataUrl(file: File): Promise<string> {
   const buf = await file.arrayBuffer();
@@ -265,35 +284,59 @@ equipment" is not definitive unless visible.`;
     model,
     response_format: { type: "json_object" },
     temperature: 0,
+    max_tokens: 800,
     messages: [
       { role: "system", content: systemPrompt },
       {
         role: "user",
         content: [
           { type: "text", text: userInstruction },
-          { type: "image_url", image_url: { url: dataUrl, detail: "high" } },
+          { type: "image_url", image_url: { url: dataUrl, detail: "auto" } },
         ],
       },
     ],
   };
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
+  // Time-bound the upstream call so Cloudflare doesn't wrap a stalled fetch
+  // as a 502 — we'd rather return our own JSON fallback.
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 45_000);
+
+  let res: Response;
+  try {
+    res = await fetchWithRetry(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      },
+      2,
+    );
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("OpenAI request timed out after 45s");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`OpenAI ${res.status}: ${text.slice(0, 200)}`);
   }
 
-  const json = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
+  let json: { choices?: Array<{ message?: { content?: string } }> };
+  try {
+    json = (await res.json()) as typeof json;
+  } catch {
+    throw new Error("OpenAI returned a non-JSON response");
+  }
   const content = json.choices?.[0]?.message?.content;
   if (!content) throw new Error("No content from model");
 
@@ -305,6 +348,38 @@ equipment" is not definitive unless visible.`;
     if (match) return JSON.parse(match[0]);
     throw new Error("Model did not return valid JSON");
   }
+}
+
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+  maxAttempts: number,
+): Promise<Response> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(url, init);
+      // Retry on transient upstream errors
+      if (res.status >= 500 && res.status < 600 && attempt < maxAttempts) {
+        await sleep(400 * attempt);
+        continue;
+      }
+      return res;
+    } catch (err) {
+      lastErr = err;
+      // Don't retry aborts (timeout) — surface immediately
+      if (err instanceof Error && err.name === "AbortError") throw err;
+      if (attempt < maxAttempts) {
+        await sleep(400 * attempt);
+        continue;
+      }
+    }
+  }
+  throw lastErr ?? new Error("fetchWithRetry: unknown error");
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 const ALLOWED_TANDEM: TandemQuad[] = ["likely yes", "likely no", "unknown"];

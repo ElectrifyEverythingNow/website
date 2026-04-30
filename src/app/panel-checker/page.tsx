@@ -6,6 +6,7 @@ import { PanelUpload } from "@/components/panel-checker/PanelUpload";
 import { UpgradeSelection } from "@/components/panel-checker/UpgradeSelection";
 import { PanelResults } from "@/components/panel-checker/PanelResults";
 import { ShareButtons } from "@/components/panel-checker/ShareButtons";
+import { ReportPreview } from "@/components/panel-checker/ReportPreview";
 import {
   computeRecommendations,
   defaultSelectedUpgrades,
@@ -15,6 +16,7 @@ import type {
   DetectedPanel,
   UpgradeId,
 } from "@/lib/panel-checker/types";
+import { compressImageForUpload } from "@/lib/panel-checker/image";
 
 const MAX_BYTES = 12 * 1024 * 1024;
 
@@ -33,6 +35,7 @@ function PanelCheckerInner() {
   const [selected, setSelected] = useState<UpgradeId[]>(defaultSelectedUpgrades());
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [apiWarning, setApiWarning] = useState<string | null>(null);
   const [response, setResponse] = useState<AnalyzePanelResponse | null>(null);
   const [overrides, setOverrides] = useState<Partial<DetectedPanel>>({});
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -56,6 +59,7 @@ function PanelCheckerInner() {
   function handleSelectFile(next: File | null) {
     setUploadError(null);
     setApiError(null);
+    setApiWarning(null);
     if (!next) {
       setFile(null);
       return;
@@ -82,51 +86,75 @@ function PanelCheckerInner() {
     }
     setIsAnalyzing(true);
     setApiError(null);
+    setApiWarning(null);
     setResponse(null);
     setOverrides({});
 
+    let uploadFile = file;
+    try {
+      uploadFile = await compressImageForUpload(file);
+    } catch {
+      // best-effort — fall back to original
+    }
+
     const form = new FormData();
-    form.append("image", file);
+    form.append("image", uploadFile);
     form.append("upgrades", JSON.stringify(selected));
 
+    let res: Response | null = null;
     try {
-      const res = await fetch("/api/analyze-panel", {
+      res = await fetch("/api/analyze-panel", {
         method: "POST",
         body: form,
       });
-      const data = (await res.json().catch(() => null)) as
-        | (AnalyzePanelResponse & { error?: string })
-        | { error: string }
-        | null;
-
-      if (!data) {
-        setApiError("The AI read failed. Please try again or use a clearer image.");
-      } else if (!res.ok) {
-        const msg =
-          ("error" in data && data.error) ||
-          "The AI read failed. Please try again or use a clearer image.";
-        setApiError(msg);
-        if ("analysis" in data && "recommendations" in data && data.analysis) {
-          setResponse({
-            analysis: data.analysis,
-            recommendations: data.recommendations,
-          });
-        }
-      } else if ("analysis" in data && "recommendations" in data) {
-        setResponse({
-          analysis: data.analysis,
-          recommendations: data.recommendations,
-        });
-      } else {
-        setApiError("Unexpected response from server.");
-      }
-    } catch {
+    } catch (err) {
+      console.error("[panel-checker] network error:", err);
       setApiError(
-        "Could not reach the analysis service. Check your connection and try again.",
+        "Couldn't reach the analysis service. Check your internet connection and try again.",
       );
-    } finally {
       setIsAnalyzing(false);
+      return;
     }
+
+    type ApiBody = Partial<AnalyzePanelResponse> & {
+      error?: string;
+      warning?: string;
+    };
+    let data: ApiBody | null = null;
+    try {
+      data = (await res.json()) as ApiBody;
+    } catch {
+      // Response was not JSON (e.g. a Cloudflare 502 HTML page).
+      data = null;
+    }
+
+    if (!data) {
+      setApiError(
+        res.status >= 500
+          ? "The analysis service is having a moment. Please try again, or fill in the panel details manually below."
+          : "Unexpected response from server. Please try again.",
+      );
+      setIsAnalyzing(false);
+      return;
+    }
+
+    if (data.analysis && data.recommendations) {
+      setResponse({
+        analysis: data.analysis,
+        recommendations: data.recommendations,
+      });
+      if (data.warning) setApiWarning(data.warning);
+      if (data.error && !res.ok) setApiError(data.error);
+    } else {
+      setApiError(
+        data.error ||
+          (res.status === 500
+            ? "The analysis service isn't configured yet. Please try again later."
+            : "The AI couldn't read this image. Please try a clearer photo, or fill in the panel details manually."),
+      );
+    }
+
+    setIsAnalyzing(false);
   }
 
   function handlePrint() {
@@ -163,28 +191,40 @@ function PanelCheckerInner() {
           />
           <UpgradeSelection selected={selected} onChange={setSelected} />
 
-          <button
-            type="button"
-            onClick={handleAnalyze}
-            disabled={isAnalyzing || !file || selected.length === 0}
-            className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white font-bold text-base px-8 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
-          >
-            {isAnalyzing ? (
-              <>
-                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Analyzing panel photo…
-              </>
-            ) : (
-              "Analyze panel photo"
-            )}
-          </button>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={handleAnalyze}
+              disabled={isAnalyzing || !file || selected.length === 0}
+              className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white font-bold text-base px-8 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+            >
+              {isAnalyzing ? (
+                <>
+                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Analyzing panel photo…
+                </>
+              ) : (
+                "Analyze panel photo"
+              )}
+            </button>
+            <p className="text-xs text-zinc-500 text-center">
+              Planning estimate only. Have a licensed electrician verify before
+              doing work.
+            </p>
+          </div>
 
           {apiError && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {apiError}
+              <p>{apiError}</p>
+              {response && (
+                <p className="mt-1 text-xs">
+                  You can still fill in or correct any panel details below to
+                  see recommendations.
+                </p>
+              )}
             </div>
           )}
 
@@ -205,11 +245,7 @@ function PanelCheckerInner() {
 
         {/* Right column — results */}
         <div ref={resultsRef} className="space-y-5">
-          {!response && !isAnalyzing && (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center text-sm text-zinc-500">
-              Your report appears here once you upload and analyze.
-            </div>
-          )}
+          {!response && !isAnalyzing && <ReportPreview />}
           {isAnalyzing && (
             <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500 shadow-sm">
               Reading your panel photo…
@@ -231,12 +267,16 @@ function PanelCheckerInner() {
             );
             return (
               <>
-                {lowConfidence && (
+                {apiWarning && (
                   <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 print:hidden">
-                    We couldn&rsquo;t read the panel clearly. Results are lower
-                    confidence — edit any field below if you know better, or
-                    try a clearer photo of the full panel and inside-door
-                    label.
+                    {apiWarning}
+                  </div>
+                )}
+                {!apiWarning && lowConfidence && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 print:hidden">
+                    We couldn&rsquo;t read the panel clearly. Edit any field
+                    below if you know better, or try a clearer photo of the
+                    full panel and the inside-door label.
                   </div>
                 )}
                 <PanelResults
