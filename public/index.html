@@ -309,7 +309,7 @@ footer a:hover{text-decoration:underline}
         var res = await fetch('/api/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
+          body: JSON.stringify({ email: email, source: 'homepage' })
         });
         if (res.ok) {
           btn.textContent = 'You\'re in!';
