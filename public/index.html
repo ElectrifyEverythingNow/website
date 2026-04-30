@@ -36,9 +36,54 @@ body{font-family:var(--sans);color:var(--charcoal);background:var(--warm-gray);-
 .hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);animation:fadeIn 1s ease .8s both}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .hero-icons{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.hero-float{position:absolute;opacity:.6;animation:heroFloat 6s ease-in-out infinite}
+.hero-float{position:absolute;opacity:.55;animation:heroFloat 6s ease-in-out infinite}
 @keyframes heroFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-25px) rotate(12deg)}}
-@media(max-width:768px){.hero-float{opacity:.4;font-size:3.5rem!important}}
+@media(max-width:768px){.hero-float{opacity:.3;font-size:3rem!important}}
+
+/* Hero result cards (floating tool previews) */
+.hero-result{position:absolute;background:rgba(255,255,255,.07);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:.85rem 1rem;color:var(--white);font-family:var(--sans);min-width:200px;max-width:240px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:heroFloatCard 7s ease-in-out infinite;z-index:0;pointer-events:none}
+.hero-result .label{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.hero-result .label .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.hero-result .value{font-size:.95rem;line-height:1.3;font-weight:500;color:rgba(255,255,255,.92)}
+@keyframes heroFloatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@media(max-width:1024px){.hero-result{display:none}}
+
+/* Trust strip under hero CTAs */
+.hero-trust{margin-top:1.5rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:rgba(255,255,255,.55);max-width:620px;animation:fadeIn .8s ease .5s both}
+.hero-trust span{color:rgba(255,255,255,.85)}
+
+/* "Start here" path */
+.starthere{background:var(--white);border-top:1px solid rgba(0,0,0,.06);padding:4rem 2rem 2rem}
+.starthere .inner{max-width:1100px;margin:0 auto;text-align:center}
+.starthere-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem;text-align:left}
+.start-step{position:relative;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:1.25rem;background:var(--white);transition:all .2s ease;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:.4rem}
+.start-step:hover{border-color:rgba(13,148,72,.4);box-shadow:0 6px 20px rgba(0,0,0,.04);transform:translateY(-2px)}
+.start-step .num{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--green)}
+.start-step .title{font-family:var(--sans);font-weight:600;font-size:1rem;color:var(--charcoal)}
+.start-step .desc{font-size:.82rem;color:var(--slate);line-height:1.5}
+.start-step .status{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin-top:auto;padding-top:.4rem}
+.start-step.live .status{color:var(--green-dark)}
+@media(max-width:900px){.starthere-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.starthere-grid{grid-template-columns:1fr}}
+
+/* Cheaper-options callout */
+.callout-section{background:var(--green-light);padding:3rem 2rem;border-top:1px solid rgba(13,148,72,.15);border-bottom:1px solid rgba(13,148,72,.15)}
+.callout-section .inner{max-width:780px;margin:0 auto;text-align:center}
+.callout-section .label{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--green-dark);margin-bottom:.75rem}
+.callout-section h2{font-family:var(--serif);font-size:clamp(1.4rem,3vw,2rem);font-weight:400;line-height:1.3;color:var(--charcoal);margin-bottom:1rem}
+.callout-section a.cta{display:inline-flex;align-items:center;gap:.4rem;margin-top:.5rem;color:var(--green-dark);font-weight:600;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:.05rem}
+.callout-section a.cta:hover{color:var(--green)}
+
+/* Writing / thinking section */
+.writing-section{background:var(--warm-gray);border-top:1px solid rgba(0,0,0,.06)}
+.writing-section .inner{max-width:1100px;margin:0 auto}
+.writing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:2.5rem}
+.writing-card{display:block;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:1.5rem;background:var(--white);text-decoration:none;color:inherit;transition:all .2s ease}
+.writing-card:hover{border-color:rgba(13,148,72,.4);box-shadow:0 6px 20px rgba(0,0,0,.05);transform:translateY(-2px)}
+.writing-card .kicker{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem;display:flex;align-items:center;gap:.35rem}
+.writing-card h3{font-family:var(--serif);font-size:1.3rem;font-weight:400;line-height:1.3;color:var(--charcoal);margin-bottom:.4rem}
+.writing-card .source{font-family:var(--sans);font-size:.78rem;color:var(--slate)}
+@media(max-width:700px){.writing-grid{grid-template-columns:1fr}}
 
 /* SECTIONS */
 section{padding:6rem 2rem}
@@ -117,35 +162,86 @@ footer a:hover{text-decoration:underline}
 <!-- ═══ HERO ═══ -->
 <section class="hero">
   <div class="hero-grid"></div>
-  <!-- Floating electrification icons -->
+  <!-- Floating electrification icons (kept thinner so they don't compete with the cards) -->
   <div class="hero-icons" aria-hidden="true">
-    <span class="hero-float" style="top:8%;left:5%;font-size:7rem;animation-delay:0s">☀️</span>
-    <span class="hero-float" style="top:15%;right:8%;font-size:6rem;animation-delay:.5s">🔌</span>
-    <span class="hero-float" style="top:60%;left:3%;font-size:5.5rem;animation-delay:1s">🚗</span>
-    <span class="hero-float" style="top:75%;right:5%;font-size:6rem;animation-delay:1.5s">🏠</span>
-    <span class="hero-float" style="top:25%;left:12%;font-size:5.5rem;animation-delay:2s">⚡</span>
-    <span class="hero-float" style="top:45%;right:3%;font-size:6rem;animation-delay:.8s">🔋</span>
-    <span class="hero-float" style="top:85%;left:10%;font-size:5rem;animation-delay:1.2s">🍳</span>
-    <span class="hero-float" style="top:5%;right:15%;font-size:5.5rem;animation-delay:1.8s">🌡️</span>
-    <span class="hero-float" style="top:40%;left:7%;font-size:5rem;animation-delay:2.2s">💡</span>
-    <span class="hero-float" style="top:70%;right:12%;font-size:5.5rem;animation-delay:.3s">🚿</span>
-    <span class="hero-float" style="top:50%;right:10%;font-size:7rem;animation-delay:1.6s">🔆</span>
-    <span class="hero-float" style="top:30%;right:18%;font-size:5rem;animation-delay:2.5s">🏭</span>
-    <span class="hero-float" style="top:90%;right:18%;font-size:5.5rem;animation-delay:.6s">🛻</span>
-    <span class="hero-float" style="top:18%;left:18%;font-size:5rem;animation-delay:1.4s">🌎</span>
+    <span class="hero-float" style="top:8%;left:4%;font-size:5rem;animation-delay:0s">☀️</span>
+    <span class="hero-float" style="top:78%;left:3%;font-size:4.5rem;animation-delay:1s">🚗</span>
+    <span class="hero-float" style="top:88%;left:14%;font-size:4rem;animation-delay:1.2s">🍳</span>
+    <span class="hero-float" style="top:6%;right:6%;font-size:4rem;animation-delay:1.8s">🌡️</span>
+    <span class="hero-float" style="top:84%;right:18%;font-size:4.5rem;animation-delay:.6s">🛻</span>
+    <span class="hero-float" style="top:42%;right:4%;font-size:4rem;animation-delay:.8s">🔋</span>
+  </div>
+  <!-- Floating result cards: tools, not just decoration. Hidden on small screens to protect headline safe area. -->
+  <div class="hero-results" aria-hidden="true">
+    <div class="hero-result" style="top:14%;right:6%;animation-delay:0s">
+      <div class="label"><span class="dot"></span>Panel Checker</div>
+      <div class="value">You may not need a full upgrade</div>
+    </div>
+    <div class="hero-result" style="top:48%;right:4%;animation-delay:1.4s">
+      <div class="label"><span class="dot"></span>Rate Optimizer</div>
+      <div class="value">Save $339/year on the right plan</div>
+    </div>
+    <div class="hero-result" style="top:72%;right:8%;animation-delay:2.6s">
+      <div class="label"><span class="dot"></span>Solar Calculator</div>
+      <div class="value">Payback estimate by state</div>
+    </div>
   </div>
   <div class="hero-content">
-<div class="hero-badge"><span class="dot"></span> Tools for the energy transition</div>
-    <h1>Electrify <em>everything.</em><br>Know exactly what it costs.</h1>
-    <p class="hero-sub">Free calculators that show you the real costs and savings of going electric. Solar panels, heat pumps, rebates, and more. Nationwide, built for homeowners and renters.</p>
+    <div class="hero-badge"><span class="dot"></span> Tools for the energy transition</div>
+    <h1>Electrify <em>everything</em> at home.<br>See what it really costs.</h1>
+    <p class="hero-sub">Free calculators for panel upgrades, rate plans, solar, rebates, and home electrification sequencing — built for homeowners and renters before they call a contractor.</p>
     <div class="hero-ctas">
-      <a href="#tools" class="hero-cta primary">See the tools <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-      <a href="/solar" class="hero-cta secondary">Try the Solar Calculator</a>
+      <a href="/panel-checker" class="hero-cta primary">Check my electrical panel <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="#tools" class="hero-cta secondary">Explore all tools</a>
     </div>
+    <p class="hero-trust"><span>Free</span> · <span>No signup required</span> · Built from utility rates, incentives, and real electrification constraints</p>
   </div>
   <div class="hero-scroll">Scroll to explore ↓</div>
 </section>
 
+
+<!-- ═══ START HERE PATH ═══ -->
+<section class="starthere">
+  <div class="inner">
+    <p class="section-label">Start here</p>
+    <h2 class="section-heading" style="font-size:clamp(1.6rem,3vw,2.2rem)">A clearer path before you call a contractor</h2>
+    <div class="starthere-grid">
+      <a href="/panel-checker" class="start-step live">
+        <div class="num">Step 1</div>
+        <div class="title">Check your panel</div>
+        <div class="desc">See whether your electrical panel can handle the upgrades you may add.</div>
+        <div class="status">● Live</div>
+      </a>
+      <a href="/rates" class="start-step live">
+        <div class="num">Step 2</div>
+        <div class="title">Compare your rate plan</div>
+        <div class="desc">Find the cheapest electricity plan for your usage patterns and equipment.</div>
+        <div class="status">● Live</div>
+      </a>
+      <a href="https://joshlake.ai/writing/electrification-sequencing" target="_blank" rel="noopener noreferrer" class="start-step">
+        <div class="num">Step 3</div>
+        <div class="title">Sequence your upgrades</div>
+        <div class="desc">Read the thinking on which electrification moves to make first vs. defer.</div>
+        <div class="status">↗ Read the guide</div>
+      </a>
+      <a href="#tools" class="start-step">
+        <div class="num">Step 4</div>
+        <div class="title">Stack rebates</div>
+        <div class="desc">Combine federal, state, and utility rebates so you don't leave money on the table.</div>
+        <div class="status">Coming soon</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PANEL UPGRADE CALLOUT ═══ -->
+<section class="callout-section">
+  <div class="inner">
+    <p class="label">Before you write that check</p>
+    <h2>Before approving a $5,000–$15,000 panel upgrade, check whether cheaper options like load sharing, tandem breakers, smart load management, or a subpanel may work.</h2>
+    <a href="/panel-checker" class="cta">Check my panel first <span aria-hidden>→</span></a>
+  </div>
+</section>
 
 <!-- ═══ TOOLS ═══ -->
 <section class="tools-section" id="tools">
@@ -284,6 +380,37 @@ footer a:hover{text-decoration:underline}
           <button type="submit" style="width:100%;padding:.7rem;background:var(--green);color:var(--white);border:none;border-radius:8px;font-family:var(--sans);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s">Submit Request</button>
         </form>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WRITING / THINKING ═══ -->
+<section class="writing-section">
+  <div class="inner">
+    <p class="section-label">From the founder</p>
+    <h2 class="section-heading">Read the thinking behind the tools</h2>
+    <p class="section-sub">The constraints that drove these calculators — sequencing, panel-upgrade myths, the workforce gap, and lessons from leading AI in cleantech.</p>
+    <div class="writing-grid">
+      <a href="https://joshlake.ai/writing/electrification-sequencing" target="_blank" rel="noopener noreferrer" class="writing-card">
+        <div class="kicker">▸ Essay</div>
+        <h3>The Electrification Sequencing Problem</h3>
+        <div class="source">joshlake.ai · Writing</div>
+      </a>
+      <a href="https://joshlake.ai/writing/panel-upgrade-myth" target="_blank" rel="noopener noreferrer" class="writing-card">
+        <div class="kicker">▸ Essay</div>
+        <h3>You Probably Don&rsquo;t Need a Panel Upgrade</h3>
+        <div class="source">joshlake.ai · Writing</div>
+      </a>
+      <a href="https://joshlake.ai/writing/robots-electrification" target="_blank" rel="noopener noreferrer" class="writing-card">
+        <div class="kicker">▸ Essay</div>
+        <h3>Robots Are the Missing Workforce for Electrification</h3>
+        <div class="source">joshlake.ai · Writing</div>
+      </a>
+      <a href="https://joshlake.ai/writing/ai-at-a-startup" target="_blank" rel="noopener noreferrer" class="writing-card">
+        <div class="kicker">▸ Essay</div>
+        <h3>What I Learned Leading AI at Elephant</h3>
+        <div class="source">joshlake.ai · Writing</div>
+      </a>
     </div>
   </div>
 </section>

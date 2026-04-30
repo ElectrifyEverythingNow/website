@@ -203,6 +203,17 @@ export function PanelResults({
             </div>
           ))}
         </div>
+
+        <a
+          href="https://joshlake.ai/writing/panel-upgrade-myth"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 block rounded-lg border border-green-200 bg-green-50 hover:bg-green-100 transition-colors px-4 py-3 text-sm text-green-900 print:hidden"
+        >
+          <span className="font-semibold">Want the deeper explanation?</span>{" "}
+          Read: <span className="underline underline-offset-2">You Probably Don&rsquo;t Need a Panel Upgrade</span>
+          <span aria-hidden className="inline-block ml-1">↗</span>
+        </a>
       </div>
 
       {/* Electrician checklist */}
