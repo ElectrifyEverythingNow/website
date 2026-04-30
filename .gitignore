@@ -11,6 +11,8 @@ out/
 .env
 .env.local
 .env.production
+.dev.vars
+.wrangler/
 package-lock.json
 next-env.d.ts
 .superpowers/
