@@ -17,6 +17,14 @@ import type {
   UpgradeId,
 } from "@/lib/panel-checker/types";
 import { compressImageForUpload } from "@/lib/panel-checker/image";
+import {
+  SAMPLE_ANALYSIS,
+  SAMPLE_IMAGE_URL,
+  SAMPLE_SELECTED_UPGRADES,
+} from "@/lib/panel-checker/sample";
+import { fallbackAnalysis } from "@/lib/panel-checker/normalize";
+import { EmailCapture } from "@/components/panel-checker/EmailCapture";
+import { NextSteps } from "@/components/panel-checker/NextSteps";
 
 const MAX_BYTES = 12 * 1024 * 1024;
 
@@ -109,8 +117,14 @@ function PanelCheckerInner() {
       });
     } catch (err) {
       console.error("[panel-checker] network error:", err);
+      // Fall back to a manually-fillable report so the user still sees their
+      // selected upgrades reflected in spacesNeeded / largestBreaker.
       setApiError(
-        "Couldn't reach the analysis service. Check your internet connection and try again.",
+        "Couldn't reach the analysis service. Fill in the panel details below — your selected upgrades are already factored in.",
+      );
+      setResponseFromFallback(
+        "Network error — couldn't reach the AI vision service.",
+        selected,
       );
       setIsAnalyzing(false);
       return;
@@ -131,8 +145,12 @@ function PanelCheckerInner() {
     if (!data) {
       setApiError(
         res.status >= 500
-          ? "The analysis service is having a moment. Please try again, or fill in the panel details manually below."
+          ? "The analysis service is having a moment. Fill in the panel details below — your selected upgrades are already factored in."
           : "Unexpected response from server. Please try again.",
+      );
+      setResponseFromFallback(
+        "Service returned a non-JSON response.",
+        selected,
       );
       setIsAnalyzing(false);
       return;
@@ -149,12 +167,56 @@ function PanelCheckerInner() {
       setApiError(
         data.error ||
           (res.status === 500
-            ? "The analysis service isn't configured yet. Please try again later."
-            : "The AI couldn't read this image. Please try a clearer photo, or fill in the panel details manually."),
+            ? "The analysis service isn't configured yet. Fill in the panel details below — your selected upgrades are already factored in."
+            : "The AI couldn't read this image. Fill in the panel details below — your selected upgrades are already factored in."),
+      );
+      setResponseFromFallback(
+        data.error || "AI vision call did not return a usable result.",
+        selected,
       );
     }
 
     setIsAnalyzing(false);
+  }
+
+  function setResponseFromFallback(reason: string, upgrades: UpgradeId[]) {
+    const fb = fallbackAnalysis(reason);
+    setResponse({
+      analysis: fb,
+      recommendations: computeRecommendations(fb, upgrades),
+    });
+  }
+
+  async function handleTrySample() {
+    setUploadError(null);
+    setApiError(null);
+    setApiWarning(null);
+    setOverrides({});
+    try {
+      const res = await fetch(SAMPLE_IMAGE_URL);
+      const blob = await res.blob();
+      const sampleFile = new File([blob], "sample-panel.svg", {
+        type: blob.type || "image/svg+xml",
+      });
+      setFile(sampleFile);
+      setSelected(SAMPLE_SELECTED_UPGRADES);
+      // Skip the API call — use a hardcoded sample so the demo always works.
+      setResponse({
+        analysis: SAMPLE_ANALYSIS,
+        recommendations: computeRecommendations(
+          SAMPLE_ANALYSIS,
+          SAMPLE_SELECTED_UPGRADES,
+        ),
+      });
+      setApiWarning(
+        "Showing a sample report. Upload your own photo to analyze your panel.",
+      );
+    } catch (err) {
+      console.error("[panel-checker] sample load failed:", err);
+      setUploadError(
+        "Couldn't load the sample photo. Please try uploading your own.",
+      );
+    }
   }
 
   function handlePrint() {
@@ -188,6 +250,7 @@ function PanelCheckerInner() {
             previewUrl={previewUrl}
             error={uploadError}
             onSelect={handleSelectFile}
+            onTrySample={handleTrySample}
           />
           <UpgradeSelection selected={selected} onChange={setSelected} />
 
@@ -196,6 +259,7 @@ function PanelCheckerInner() {
               type="button"
               onClick={handleAnalyze}
               disabled={isAnalyzing || !file || selected.length === 0}
+              aria-disabled={isAnalyzing || !file || selected.length === 0}
               className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white font-bold text-base px-8 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
               {isAnalyzing ? (
@@ -206,6 +270,10 @@ function PanelCheckerInner() {
                   </svg>
                   Analyzing panel photo…
                 </>
+              ) : !file ? (
+                "Upload a panel photo to continue"
+              ) : selected.length === 0 ? (
+                "Pick at least one upgrade"
               ) : (
                 "Analyze panel photo"
               )}
@@ -289,6 +357,8 @@ function PanelCheckerInner() {
                   selectedUpgrades={selected}
                 />
                 <ShareButtons onPrint={handlePrint} />
+                <NextSteps />
+                <EmailCapture />
               </>
             );
           })()}

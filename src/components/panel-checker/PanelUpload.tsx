@@ -7,9 +7,16 @@ interface PanelUploadProps {
   previewUrl: string | null;
   error: string | null;
   onSelect: (file: File | null) => void;
+  onTrySample?: () => void;
 }
 
-export function PanelUpload({ file, previewUrl, error, onSelect }: PanelUploadProps) {
+export function PanelUpload({
+  file,
+  previewUrl,
+  error,
+  onSelect,
+  onTrySample,
+}: PanelUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [tipsOpen, setTipsOpen] = useState(false);
 
@@ -26,10 +33,11 @@ export function PanelUpload({ file, previewUrl, error, onSelect }: PanelUploadPr
 
       {/* Safety callout */}
       <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 leading-relaxed">
-        <strong>Safety:</strong> Open <strong>only the hinged door</strong> if
-        it&rsquo;s safe to do so. <strong>Do not</strong> remove screws, remove
-        the metal cover (deadfront), or touch any wires. If anything looks
-        damaged, wet, hot, or scorched, stop and call an electrician.
+        <strong>Safety:</strong>{" "}
+        Open the hinged door <em>only</em> if it is safe to do so.{" "}
+        <strong>Do not</strong> remove screws, remove the metal cover
+        (deadfront), or touch any wires. If anything looks damaged, wet, hot,
+        or scorched, stop and call an electrician.
       </div>
 
       <div className="mt-4">
@@ -78,6 +86,20 @@ export function PanelUpload({ file, previewUrl, error, onSelect }: PanelUploadPr
           <p className="text-sm text-red-600 mt-2" role="alert">
             {error}
           </p>
+        )}
+
+        {onTrySample && (
+          <div className="mt-3 flex items-center justify-center gap-2 text-xs">
+            <span className="text-zinc-400">or</span>
+            <button
+              type="button"
+              onClick={onTrySample}
+              className="font-semibold text-green-700 hover:text-green-800 underline underline-offset-2"
+            >
+              Try with sample panel photo
+            </button>
+            <span className="text-zinc-400">— see the report flow</span>
+          </div>
         )}
       </div>
 
