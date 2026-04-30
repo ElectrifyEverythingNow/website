@@ -41,9 +41,11 @@ export function SiteNav() {
             Panel Checker
           </Link>
           <Link
-            href="/solar/how-to-install"
+            href="/install-guide"
             className={`hover:text-green-300 ${
-              pathname === "/solar/how-to-install" ? "text-green-400 font-semibold" : "text-zinc-300"
+              pathname === "/install-guide" || pathname === "/solar/how-to-install"
+                ? "text-green-400 font-semibold"
+                : "text-zinc-300"
             }`}
           >
             Install Guide

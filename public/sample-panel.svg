@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4d6d8"/>
+      <stop offset="50%" stop-color="#eef0f2"/>
+      <stop offset="100%" stop-color="#bfc3c7"/>
+    </linearGradient>
+    <linearGradient id="door" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fafafa"/>
+      <stop offset="100%" stop-color="#e3e5e7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Wall background -->
+  <rect width="800" height="1000" fill="#f3eee6"/>
+
+  <!-- Outer panel box -->
+  <rect x="80" y="80" width="640" height="840" rx="6" fill="url(#metal)" stroke="#9aa0a6" stroke-width="3"/>
+
+  <!-- Inside-door label panel (right side) -->
+  <rect x="500" y="120" width="200" height="760" fill="url(#door)" stroke="#9aa0a6" stroke-width="2"/>
+  <text x="600" y="160" text-anchor="middle" font-size="22" font-weight="bold" fill="#1f2937">SAMPLE PANEL</text>
+  <text x="600" y="190" text-anchor="middle" font-size="14" fill="#374151">Square D — QO Series</text>
+  <text x="600" y="220" text-anchor="middle" font-size="14" fill="#374151">200A Main · 30 spaces</text>
+
+  <!-- Schedule label rows -->
+  <g font-size="11" fill="#374151">
+    <text x="520" y="270">1  Range / 50A</text>
+    <text x="520" y="290">3  Dryer / 30A</text>
+    <text x="520" y="310">5  HVAC / 40A</text>
+    <text x="520" y="330">7  Water Htr / 30A</text>
+    <text x="520" y="350">9  Kitchen / 20A</text>
+    <text x="520" y="370">11 Lights / 15A</text>
+    <text x="520" y="390">13 Bath / 20A</text>
+    <text x="520" y="410">15 Bedrooms / 15A</text>
+    <text x="520" y="430">17 Garage / 20A</text>
+    <text x="520" y="450">19 Outlets / 20A</text>
+    <text x="520" y="470">21 Living Rm / 15A</text>
+    <text x="520" y="490">23 SPARE</text>
+    <text x="520" y="510">25 SPARE</text>
+    <text x="520" y="530">27 SPARE</text>
+    <text x="520" y="550">29 SPARE</text>
+  </g>
+
+  <text x="600" y="600" text-anchor="middle" font-size="13" fill="#374151">Tandem-compatible: see chart</text>
+  <text x="600" y="625" text-anchor="middle" font-size="11" fill="#6b7280">Use only Square D QO breakers</text>
+
+  <!-- Main breaker -->
+  <rect x="120" y="120" width="320" height="60" fill="#1f2937" stroke="#0f172a" stroke-width="2"/>
+  <text x="280" y="158" text-anchor="middle" font-size="18" font-weight="bold" fill="#f9fafb">MAIN  200A</text>
+  <rect x="380" y="135" width="40" height="30" fill="#dc2626" rx="3"/>
+  <text x="400" y="156" text-anchor="middle" font-size="12" font-weight="bold" fill="#fef2f2">ON</text>
+
+  <!-- Bus area -->
+  <rect x="120" y="200" width="320" height="660" fill="#cdd1d5" stroke="#9aa0a6"/>
+
+  <!-- Breakers (15 rows of two) -->
+  <g>
+    <!-- Filled breakers -->
+    <g fill="#1f2937" stroke="#0f172a">
+      <rect x="130" y="220" width="140" height="34"/>
+      <rect x="290" y="220" width="140" height="34"/>
+      <rect x="130" y="260" width="140" height="34"/>
+      <rect x="290" y="260" width="140" height="34"/>
+      <rect x="130" y="300" width="140" height="34"/>
+      <rect x="290" y="300" width="140" height="34"/>
+      <rect x="130" y="340" width="140" height="34"/>
+      <rect x="290" y="340" width="140" height="34"/>
+      <rect x="130" y="380" width="140" height="34"/>
+      <rect x="290" y="380" width="140" height="34"/>
+      <rect x="130" y="420" width="140" height="34"/>
+      <rect x="290" y="420" width="140" height="34"/>
+      <rect x="130" y="460" width="140" height="34"/>
+      <rect x="290" y="460" width="140" height="34"/>
+      <rect x="130" y="500" width="140" height="34"/>
+      <rect x="290" y="500" width="140" height="34"/>
+      <rect x="130" y="540" width="140" height="34"/>
+      <rect x="290" y="540" width="140" height="34"/>
+      <rect x="130" y="580" width="140" height="34"/>
+      <rect x="290" y="580" width="140" height="34"/>
+      <rect x="130" y="620" width="140" height="34"/>
+      <rect x="290" y="620" width="140" height="34"/>
+    </g>
+    <!-- Empty slots -->
+    <g fill="#9aa0a6" stroke="#6b7280">
+      <rect x="130" y="660" width="140" height="34"/>
+      <rect x="290" y="660" width="140" height="34"/>
+      <rect x="130" y="700" width="140" height="34"/>
+      <rect x="290" y="700" width="140" height="34"/>
+      <rect x="130" y="740" width="140" height="34"/>
+      <rect x="290" y="740" width="140" height="34"/>
+      <rect x="130" y="780" width="140" height="34"/>
+      <rect x="290" y="780" width="140" height="34"/>
+    </g>
+  </g>
+
+  <!-- Switch handles on filled breakers -->
+  <g fill="#fbbf24">
+    <rect x="252" y="225" width="12" height="24" rx="2"/>
+    <rect x="412" y="225" width="12" height="24" rx="2"/>
+    <rect x="252" y="265" width="12" height="24" rx="2"/>
+    <rect x="412" y="265" width="12" height="24" rx="2"/>
+    <rect x="252" y="305" width="12" height="24" rx="2"/>
+    <rect x="412" y="305" width="12" height="24" rx="2"/>
+    <rect x="252" y="345" width="12" height="24" rx="2"/>
+    <rect x="412" y="345" width="12" height="24" rx="2"/>
+    <rect x="252" y="385" width="12" height="24" rx="2"/>
+    <rect x="412" y="385" width="12" height="24" rx="2"/>
+    <rect x="252" y="425" width="12" height="24" rx="2"/>
+    <rect x="412" y="425" width="12" height="24" rx="2"/>
+    <rect x="252" y="465" width="12" height="24" rx="2"/>
+    <rect x="412" y="465" width="12" height="24" rx="2"/>
+    <rect x="252" y="505" width="12" height="24" rx="2"/>
+    <rect x="412" y="505" width="12" height="24" rx="2"/>
+    <rect x="252" y="545" width="12" height="24" rx="2"/>
+    <rect x="412" y="545" width="12" height="24" rx="2"/>
+    <rect x="252" y="585" width="12" height="24" rx="2"/>
+    <rect x="412" y="585" width="12" height="24" rx="2"/>
+    <rect x="252" y="625" width="12" height="24" rx="2"/>
+    <rect x="412" y="625" width="12" height="24" rx="2"/>
+  </g>
+
+  <!-- Foot label -->
+  <text x="280" y="900" text-anchor="middle" font-size="12" fill="#374151">— Sample image for ElectrifyEverythingNow Panel Checker demo —</text>
+</svg>

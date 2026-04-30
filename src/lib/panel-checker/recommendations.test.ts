@@ -196,6 +196,38 @@ describe("computeRecommendations", () => {
     expect(r.spacesNeeded).toBe(0);
     expect(r.largestBreaker).toBe(0);
   });
+
+  it("computes spacesNeeded/largestBreaker from selected upgrades even with a fallback (Unknown) analysis", () => {
+    const fallback = makeAnalysis(
+      {
+        brand: "Unknown",
+        modelOrSeries: "Unknown",
+        mainBreakerAmps: 0,
+        busRatingAmps: 0,
+        totalSpaces: 0,
+        openFullSpaces: 0,
+        openTwoPoleSpaces: 0,
+        tandemQuadCompatibility: "unknown",
+        existingLargeLoads: [],
+        conditionFlags: [],
+        labelReadable: "unknown",
+        notes: "",
+      },
+      "low",
+    );
+    const r = computeRecommendations(fallback, [
+      "heat-pump",
+      "hpwh",
+      "ev",
+    ]);
+    // 2 + 2 + 2 = 6 slots; max amps = 50 (EV)
+    expect(r.spacesNeeded).toBe(6);
+    expect(r.largestBreaker).toBe(50);
+    // Full-panel option should still be present as last
+    expect(r.options[r.options.length - 1].title).toBe(
+      "Full panel or service upgrade",
+    );
+  });
 });
 
 describe("defaultSelectedUpgrades", () => {

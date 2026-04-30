@@ -1,6 +1,7 @@
 "use client";
 
-import { UPGRADES, type UpgradeId } from "@/lib/panel-checker/types";
+import { useEffect, useRef, useState } from "react";
+import { UPGRADES, getUpgrade, type UpgradeId } from "@/lib/panel-checker/types";
 
 interface UpgradeSelectionProps {
   selected: UpgradeId[];
@@ -10,6 +11,15 @@ interface UpgradeSelectionProps {
 const STARTER_BUNDLE: UpgradeId[] = ["heat-pump", "hpwh", "ev"];
 
 export function UpgradeSelection({ selected, onChange }: UpgradeSelectionProps) {
+  const [pulseIds, setPulseIds] = useState<Set<UpgradeId>>(() => new Set());
+  const pulseTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pulseTimer.current) window.clearTimeout(pulseTimer.current);
+    };
+  }, []);
+
   function toggle(id: UpgradeId) {
     if (selected.includes(id)) onChange(selected.filter((s) => s !== id));
     else onChange([...selected, id]);
@@ -17,6 +27,9 @@ export function UpgradeSelection({ selected, onChange }: UpgradeSelectionProps) 
 
   function selectStarterBundle() {
     onChange(STARTER_BUNDLE);
+    setPulseIds(new Set(STARTER_BUNDLE));
+    if (pulseTimer.current) window.clearTimeout(pulseTimer.current);
+    pulseTimer.current = window.setTimeout(() => setPulseIds(new Set()), 1400);
   }
 
   const isStarterBundle =
@@ -36,6 +49,7 @@ export function UpgradeSelection({ selected, onChange }: UpgradeSelectionProps) 
       <button
         type="button"
         onClick={selectStarterBundle}
+        aria-pressed={isStarterBundle}
         className={`mt-3 w-full text-left rounded-lg border px-3 py-3 transition-colors ${
           isStarterBundle
             ? "border-green-600 bg-green-50"
@@ -44,17 +58,44 @@ export function UpgradeSelection({ selected, onChange }: UpgradeSelectionProps) 
       >
         <div className="flex items-start gap-2">
           <span className="text-base mt-0.5" aria-hidden>
-            🤷
+            {isStarterBundle ? "✅" : "🤷"}
           </span>
           <div className="flex-1">
-            <div className="text-sm font-semibold text-zinc-900">
-              I&rsquo;m not sure yet — pick a starter bundle
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="text-sm font-semibold text-zinc-900">
+                {isStarterBundle
+                  ? "Starter bundle selected"
+                  : "I’m not sure yet — pick a starter bundle"}
+              </div>
+              {isStarterBundle && (
+                <span className="text-[10px] font-bold uppercase tracking-wider text-green-800 bg-green-100 border border-green-300 px-1.5 py-0.5 rounded-full">
+                  3 selected
+                </span>
+              )}
             </div>
             <div className="text-xs text-zinc-600 mt-0.5">
-              Common electrification path: <strong>heat pump</strong> +{" "}
+              Common electrification path:{" "}
+              <strong>heat pump</strong> +{" "}
               <strong>heat pump water heater</strong> +{" "}
               <strong>EV charger</strong>.
             </div>
+            {isStarterBundle && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {STARTER_BUNDLE.map((id) => {
+                  const u = getUpgrade(id);
+                  if (!u) return null;
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold rounded-full bg-green-600 text-white px-2 py-0.5"
+                    >
+                      <span aria-hidden>✓</span>
+                      {u.shortLabel}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </button>
@@ -66,6 +107,7 @@ export function UpgradeSelection({ selected, onChange }: UpgradeSelectionProps) 
       >
         {UPGRADES.map((u) => {
           const isOn = selected.includes(u.id);
+          const pulsing = pulseIds.has(u.id);
           return (
             <button
               key={u.id}
@@ -78,7 +120,7 @@ export function UpgradeSelection({ selected, onChange }: UpgradeSelectionProps) 
                 isOn
                   ? "border-green-600 bg-green-50"
                   : "border-zinc-200 bg-white hover:border-zinc-300"
-              }`}
+              } ${pulsing ? "ring-2 ring-green-400 ring-offset-1" : ""}`}
             >
               <div className="flex items-start gap-2">
                 <span

@@ -16,6 +16,7 @@ const staticPages = [
   { loc: "/solar", priority: "1.0", changefreq: "weekly" },
   { loc: "/rates", priority: "0.8", changefreq: "monthly" },
   { loc: "/panel-checker", priority: "0.8", changefreq: "monthly" },
+  { loc: "/install-guide", priority: "0.6", changefreq: "monthly" },
   { loc: "/solar/how-to-install", priority: "0.8", changefreq: "monthly" },
 ];
 
