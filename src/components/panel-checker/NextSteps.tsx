@@ -1,12 +1,14 @@
 import Link from "next/link";
 
+type ToolId = "panel-checker" | "rates" | "solar" | "deathclock";
+
 interface NextStepsProps {
   /** Which tool's "current" page this is rendered on, so we don't link back to it. */
-  current?: "panel-checker" | "rates" | "solar";
+  current?: ToolId;
 }
 
 interface ToolLink {
-  id: "panel-checker" | "rates" | "solar";
+  id: ToolId;
   href: string;
   icon: string;
   title: string;
@@ -14,6 +16,13 @@ interface ToolLink {
 }
 
 const TOOL_LINKS: ToolLink[] = [
+  {
+    id: "deathclock",
+    href: "/deathclock",
+    icon: "⚡",
+    title: "Sequence your upgrades",
+    desc: "See when each appliance is likely to fail so you can plan the swap before an emergency.",
+  },
   {
     id: "panel-checker",
     href: "/panel-checker",
