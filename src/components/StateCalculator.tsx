@@ -8,6 +8,7 @@ import { SystemInputs } from "@/components/SystemInputs";
 import { ResultsCard } from "@/components/ResultsCard";
 import { RefineEstimate } from "@/components/RefineEstimate";
 import { QuoteForm } from "@/components/QuoteForm";
+import { NextSteps } from "@/components/panel-checker/NextSteps";
 import { ShareResults } from "@/components/ShareResults";
 import { LegislationSection } from "@/components/LegislationSection";
 import { EducationalContent } from "@/components/EducationalContent";
@@ -288,6 +289,10 @@ export function StateCalculator({ initialStateCode }: StateCalculatorProps) {
             Electricity Rate Comparison
           </a>
         </div>
+      </section>
+
+      <section className="w-full max-w-2xl mx-auto px-4 pb-8">
+        <NextSteps current="solar" />
       </section>
 
       <footer className="w-full py-6 text-center text-sm text-zinc-400 border-t border-zinc-100">

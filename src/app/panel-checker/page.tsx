@@ -357,7 +357,7 @@ function PanelCheckerInner() {
                   selectedUpgrades={selected}
                 />
                 <ShareButtons onPrint={handlePrint} />
-                <NextSteps />
+                <NextSteps current="panel-checker" />
                 <EmailCapture />
               </>
             );

@@ -48,7 +48,7 @@ export function SiteNav() {
                 : "text-zinc-300"
             }`}
           >
-            Install Guide
+            Guides
           </Link>
         </div>
       </div>

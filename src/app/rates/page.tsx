@@ -6,6 +6,7 @@ import { RateResults } from "@/components/rates/RateResults";
 import { fetchRatePlans } from "@/lib/openei";
 import { findBestPlan } from "@/lib/rate-calculator";
 import type { ComparisonResult } from "@/lib/rate-calculator";
+import { NextSteps } from "@/components/panel-checker/NextSteps";
 
 const DEFAULT_INPUTS: RateInputValues = {
   zipCode: "80302",
@@ -86,6 +87,11 @@ export default function RatesPage() {
           <RateResults result={result} hasEv={inputs.hasEv} hasSolar={inputs.hasSolar} hasHeatPump={inputs.hasHeatPump} />
         </section>
       )}
+
+      {/* Cross-links + sequencing CTA */}
+      <section className="w-full max-w-2xl mx-auto px-4 pb-8">
+        <NextSteps current="rates" />
+      </section>
 
       {/* Footer */}
       <footer className="w-full py-6 text-center text-sm text-zinc-400 border-t border-zinc-100 mt-auto">
