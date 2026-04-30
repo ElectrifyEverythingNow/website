@@ -34,3 +34,14 @@ Optionally set `NEXT_PUBLIC_NREL_API_KEY` with a free key from [developer.nrel.g
 ## Deployment
 
 Hosted on Cloudflare Pages. Pushes to `main` auto-deploy.
+
+### Panel Checker
+
+`/panel-checker` uses an OpenAI vision model via a Cloudflare Pages Function
+(`functions/api/analyze-panel.ts`). The OpenAI key must be set as a Pages
+secret — it is never exposed to the browser. See
+[docs/panel-checker.md](docs/panel-checker.md) for full setup, including:
+
+```bash
+npx wrangler pages secret put OPENAI_API_KEY
+```
