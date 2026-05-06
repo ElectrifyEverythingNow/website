@@ -138,6 +138,23 @@ export const LAWS: LawEntry[] = [
     utilityApproval: "Utility notification (not approval) required within 30 days",
     effectiveDate: null,
   },
+  {
+    state: "California",
+    stateCode: "CA",
+    status: "introduced",
+    bill: "SB 868",
+    billUrl:
+      "https://legiscan.com/CA/bill/SB868/2025",
+    summary:
+      "Active 2026 bill to create a statewide path for plug-in and balcony solar, backed by Solar Rights Alliance and introduced as part of Sen. Scott Wiener's energy affordability package.",
+    details:
+      "Would let consumers use portable balcony solar without utility red tape or fees while requiring certified equipment and anti-islanding safety features. California matters because a clear rule there could normalize plug-in solar nationally.",
+    sourceLabel: "Solar Rights Alliance",
+    sourceUrl: "https://solarrights.org/plug-in/",
+    maxWatts: 1200,
+    utilityApproval: "Would remove utility approval red tape and fees",
+    effectiveDate: null,
+  },
 ];
 
 export const STATUS_STYLES: Record<

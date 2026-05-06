@@ -5,7 +5,7 @@ interface HeaderProps {
 }
 
 const SHARE_URL = "https://electrifyeverythingnow.com/solar";
-const SHARE_TEXT = "Check if balcony solar makes sense for you — free calculator, no signup";
+const SHARE_TEXT = "Balcony solar is moving fast in the US — check if plug-in solar might make sense for your home";
 
 export function Header({ calcCount }: HeaderProps) {
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${encodeURIComponent(SHARE_URL)}`;
@@ -27,8 +27,8 @@ export function Header({ calcCount }: HeaderProps) {
           <h1 className="text-3xl sm:text-4xl font-bold text-zinc-900 tracking-tight">
             Balcony Solar Calculator
           </h1>
-          <p className="text-lg text-zinc-500 mt-2">
-            See if plug-in solar makes sense for you
+          <p className="text-lg text-zinc-500 mt-2 max-w-2xl">
+            See if plug-in solar makes sense for you, then check the fast-changing state rules before buying anything.
           </p>
 
           {/* Counter + Share row */}

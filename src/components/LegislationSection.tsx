@@ -29,19 +29,69 @@ export function LegislationSection() {
           </h2>
         </div>
         <p className="text-sm text-zinc-500 mb-4">
-          Lawmakers in{" "}
-          <a
-            href="https://www.canarymedia.com/articles/solar/states-passing-balcony-solar-laws"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-green-600 hover:text-green-700 underline underline-offset-2"
-          >
-            33+ states
-          </a>{" "}
-          have introduced bills to legalize plug-in solar — and Utah, Maine,
-          and Virginia have already enacted laws. Here are the states leading
-          the way.
+          Plug-in and balcony solar is moving from niche idea to active state
+          policy fight. Recent reporting tracks bills or organizing in dozens of
+          states, with Utah, Maine, and Virginia already signed into law, and
+          Colorado and Maryland moving through final approvals.
         </p>
+
+        <div className="mb-5 rounded-xl border border-sky-200 bg-sky-50 p-4">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 text-lg" aria-hidden>
+              ⚡
+            </span>
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-sky-950">
+                Latest update: plug-in solar is becoming a state-by-state race
+              </h3>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-sky-900">
+                <li>
+                  <strong>Three states have now signed laws:</strong> Utah led
+                  first, Maine followed, and Virginia added consumer protections
+                  that take effect in 2027.
+                </li>
+                <li>
+                  <strong>Colorado and Maryland passed plug-in solar provisions</strong>{" "}
+                  in April 2026 and are important next states to watch.
+                </li>
+                <li>
+                  <strong>California SB 868 is the big national signal:</strong>{" "}
+                  it would remove utility red tape while requiring certified
+                  equipment and anti-islanding safety features.
+                </li>
+                <li>
+                  Germany already has roughly <strong>4 million</strong> balcony
+                  solar systems in operation, which is why US policymakers are
+                  now using it as the proof point.
+                </li>
+              </ul>
+              <p className="text-xs text-sky-800">
+                Bottom line for homeowners and renters: check the law before you
+                buy. The economics may look interesting, but the rules, wattage
+                caps, safety certifications, utility notification, landlord/HOA
+                limits, and local code still vary a lot.
+              </p>
+              <div className="flex flex-wrap gap-3 text-xs font-medium">
+                <a
+                  href="https://www.canarymedia.com/articles/solar/states-passing-balcony-solar-laws"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sky-700 hover:text-sky-900 underline underline-offset-2"
+                >
+                  Canary state tracker
+                </a>
+                <a
+                  href="https://solarrights.org/plug-in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sky-700 hover:text-sky-900 underline underline-offset-2"
+                >
+                  Solar Rights Alliance campaign
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-3">
           {LAWS.map((law, i) => {
@@ -115,8 +165,10 @@ export function LegislationSection() {
 
         <div className="mt-4 pt-3 border-t border-zinc-100">
           <p className="text-xs text-zinc-400">
-            All current bills cap plug-in solar at 1,200 watts and require UL
-            certification for safety.{" "}
+            Most new state frameworks use small-system caps around 1,200 watts,
+            with Colorado proposing a larger 1,920-watt tier. Safety rules
+            commonly require certified equipment, anti-islanding protection, and
+            state-specific utility notification or no-approval pathways.{" "}
             <a
               href="https://solarrights.org/plug-in/"
               target="_blank"
