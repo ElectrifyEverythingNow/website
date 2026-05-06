@@ -17,20 +17,28 @@ export function SiteNav() {
         </Link>
         <div className="flex items-center gap-4 text-sm">
           <Link
+            href="/start"
+            className={`hover:text-green-300 ${
+              pathname === "/start" ? "text-green-400 font-semibold" : "text-zinc-300"
+            }`}
+          >
+            Start Here
+          </Link>
+          <Link
+            href="/heat-pump-fit"
+            className={`hover:text-green-300 ${
+              pathname === "/heat-pump-fit" ? "text-green-400 font-semibold" : "text-zinc-300"
+            }`}
+          >
+            Heat Pump Fit
+          </Link>
+          <Link
             href="/solar"
             className={`hover:text-green-300 ${
               pathname === "/solar" ? "text-green-400 font-semibold" : "text-zinc-300"
             }`}
           >
-            Solar Calculator
-          </Link>
-          <Link
-            href="/rates"
-            className={`hover:text-green-300 ${
-              pathname === "/rates" ? "text-green-400 font-semibold" : "text-zinc-300"
-            }`}
-          >
-            Rate Optimizer
+            Balcony Solar
           </Link>
           <Link
             href="/panel-checker"
