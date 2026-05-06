@@ -2,6 +2,13 @@ import Link from "next/link";
 
 const projectCards = [
   {
+    title: "Build my electrification roadmap",
+    href: "/start",
+    description:
+      "Start with the highest-impact projects first. Get a simple sequence based on likely savings, urgency, and expensive-mistake risk.",
+    cta: "Start my roadmap",
+  },
+  {
     title: "I was told I need a panel upgrade",
     href: "/panel-checker",
     description:
@@ -9,32 +16,27 @@ const projectCards = [
     cta: "Check my panel options",
   },
   {
+    title: "I want a heat pump or water heater",
+    href: "/start",
+    description:
+      "Figure out whether HVAC, hot water, or panel questions should come first before you call contractors.",
+    cta: "Prioritize my projects",
+  },
+  {
     title: "I want balcony solar",
     href: "/solar",
     description:
-      "See whether plug-in or balcony solar is worth exploring where you live before buying hardware.",
-    cta: "Check balcony solar rules",
-  },
-  {
-    title: "I do not know where to start",
-    href: "/start",
-    description:
-      "Answer a few plain-English questions and get routed to the most useful tool or guide.",
-    cta: "Start with my project",
-  },
-  {
-    title: "I want to compare utility rates",
-    href: "/rates",
-    description:
-      "Estimate how electrification, solar, batteries, or EVs could change the best rate plan.",
-    cta: "Compare rates",
+      "Use the standalone Balcony Solar Calculator to check rules, sun exposure, and whether plug-in solar is worth exploring.",
+    cta: "Open balcony solar tool",
   },
 ];
 
 const comingSoon = [
+  "Electrification roadmap based on likely energy savings",
   "Heat pump readiness checker",
   "Heat pump water heater fit checker",
   "EV charger without panel upgrade planner",
+  "Post-install rate optimizer",
   "Contractor quote question generator",
 ];
 
@@ -50,9 +52,10 @@ export default function HomePage() {
             Electrify your home without getting talked into the wrong project.
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-300 sm:text-xl">
-            Free, independent planning tools for panels, balcony solar, rates,
-            heat pumps, water heaters, EV charging, and contractor questions
-            before you spend money.
+            Free, independent planning tools for heat pumps, water heaters,
+            panels, balcony solar, EV charging, and contractor questions before
+            you spend money. Rate optimization comes later, after you know what
+            you are installing.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link

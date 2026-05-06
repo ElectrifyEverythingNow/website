@@ -5,12 +5,13 @@ import { useMemo, useState } from "react";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 type Project =
+  | "roadmap"
   | "panel"
   | "heat-pump"
   | "hpwh"
   | "balcony-solar"
   | "ev-charging"
-  | "rates"
+  | "post-install-rates"
   | "not-sure";
 
 type Trigger = "quote" | "old-equipment" | "bills" | "comfort" | "climate" | "new-ev" | "curious";
@@ -18,12 +19,13 @@ type Trigger = "quote" | "old-equipment" | "bills" | "comfort" | "climate" | "ne
 type Goal = "avoid-mistake" | "plan-sequence" | "ask-contractor" | "save-money" | "check-rules";
 
 const projectOptions: { value: Project; label: string }[] = [
-  { value: "panel", label: "I was told I need a panel upgrade" },
+  { value: "roadmap", label: "I want a roadmap for what to electrify first" },
   { value: "heat-pump", label: "I want a heat pump" },
   { value: "hpwh", label: "I want a heat pump water heater" },
-  { value: "balcony-solar", label: "I want balcony or plug-in solar" },
+  { value: "panel", label: "I was told I need a panel upgrade" },
   { value: "ev-charging", label: "I want EV charging" },
-  { value: "rates", label: "I want to understand utility rates" },
+  { value: "balcony-solar", label: "I want balcony or plug-in solar" },
+  { value: "post-install-rates", label: "I already electrified something and want to optimize rates" },
   { value: "not-sure", label: "I do not know where to start" },
 ];
 
@@ -46,6 +48,22 @@ const goalOptions: { value: Goal; label: string }[] = [
 ];
 
 function recommendation(project: Project, trigger: Trigger, goal: Goal) {
+  if (project === "roadmap" || project === "not-sure" || goal === "plan-sequence" || goal === "save-money") {
+    return {
+      title: "Start with an electrification roadmap, not rates",
+      body:
+        "The first decision is usually project order. Start with the upgrades most likely to cut fossil-fuel use and bills: heat pump HVAC, heat pump water heater, smart panel/EV planning, then smaller projects. Rate optimization is useful after you know what loads you are adding.",
+      href: "#roadmap-questions",
+      cta: "Refine my roadmap below",
+      next: [
+        "Prioritize big fuel-switching loads first: space heating, water heating, and driving.",
+        "Check panel risk before approving expensive electrical work.",
+        "Use balcony solar as its own separate tool because rules and site conditions matter more than sequencing.",
+        "Come back to the Rate Optimizer after a heat pump, EV, battery, or solar install is likely.",
+      ],
+    };
+  }
+
   if (project === "panel" || (trigger === "quote" && goal === "avoid-mistake")) {
     return {
       title: "Start with the Panel Upgrade Second Opinion",
@@ -61,7 +79,7 @@ function recommendation(project: Project, trigger: Trigger, goal: Goal) {
     };
   }
 
-  if (project === "balcony-solar" || goal === "check-rules") {
+  if (project === "balcony-solar") {
     return {
       title: "Start with the Balcony Solar Calculator",
       body:
@@ -76,16 +94,16 @@ function recommendation(project: Project, trigger: Trigger, goal: Goal) {
     };
   }
 
-  if (project === "rates" || goal === "save-money") {
+  if (project === "post-install-rates") {
     return {
-      title: "Start with the Rate Optimizer",
+      title: "Use the Rate Optimizer after the project is defined",
       body:
-        "Electrification changes when you use electricity, not just how much you use. Rate plans can matter for EVs, heat pumps, batteries, and solar.",
+        "Rates are important, but they are usually a second-step decision. Use this after a heat pump, EV charger, battery, or solar install is likely so you can compare plans against your future load shape.",
       href: "/rates",
       cta: "Open Rate Optimizer",
       next: [
-        "Compare rate plans before assuming a project saves money immediately.",
-        "Watch for time-of-use windows if you have or plan to add an EV or battery.",
+        "First decide what you are installing and roughly when it will run.",
+        "Then compare time-of-use windows, EV plans, solar export rules, and battery options.",
         "Use this as planning guidance, then verify with your utility.",
       ],
     };
@@ -137,21 +155,21 @@ function recommendation(project: Project, trigger: Trigger, goal: Goal) {
   }
 
   return {
-    title: "Start with the expensive-risk question first",
+    title: "Start with the highest-savings roadmap",
     body:
-      "If you are not sure where to begin, first check whether any project creates a panel, contractor, or sequencing risk. That is where bad decisions get expensive.",
-    href: "/panel-checker",
-    cta: "Start with Panel Checker",
+      "If you are not sure where to begin, prioritize the projects most likely to change household energy use first: space heating, water heating, driving, then cooking and smaller loads. Check panel risk before approving expensive electrical work.",
+    href: "#roadmap-questions",
+    cta: "Refine my roadmap below",
     next: [
-      "If you have a contractor quote, sanity-check the expensive parts first.",
-      "If equipment is old, plan the replacement path before it fails.",
-      "If your goal is savings, compare rates before assuming a project pencils out.",
+      "Start with large fossil-fuel loads: heat pump HVAC and heat pump water heater.",
+      "If you drive or plan to, evaluate EV charging without assuming a panel upgrade.",
+      "Treat balcony solar as its own rule-and-site-specific tool, not the core roadmap.",
     ],
   };
 }
 
 export default function ProjectStarterPage() {
-  const [project, setProject] = useState<Project>("not-sure");
+  const [project, setProject] = useState<Project>("roadmap");
   const [trigger, setTrigger] = useState<Trigger>("curious");
   const [goal, setGoal] = useState<Goal>("avoid-mistake");
 
@@ -171,12 +189,27 @@ export default function ProjectStarterPage() {
             What should you electrify first?
           </h1>
           <p className="mt-5 text-lg leading-8 text-zinc-300">
-            Answer three plain-English questions. We’ll point you to the best next tool, guide, or contractor question without asking for your email.
+            Answer three plain-English questions. We’ll start with a rough roadmap based on likely energy savings and expensive-mistake risk, then point you to the best tool or contractor question.
           </p>
         </div>
 
+        <div className="mt-8 grid gap-4 md:grid-cols-4">
+          {[
+            ["1", "Heat pump HVAC", "Usually the biggest home energy and comfort lever if you heat with gas, propane, oil, or resistance electric."],
+            ["2", "Heat pump water heater", "Often a strong savings project and easier if planned before emergency replacement."],
+            ["3", "Panel + EV readiness", "Avoid overspending by checking load management and right-sized charging before upgrades."],
+            ["Later", "Rates and balcony solar", "Optimize rates after new loads are clear. Treat balcony solar as a standalone rules-and-sun tool."],
+          ].map(([rank, title, text]) => (
+            <div key={title} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+              <p className="text-xs font-black uppercase tracking-wide text-emerald-300">{rank}</p>
+              <h2 className="mt-2 font-extrabold text-white">{title}</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">{text}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_0.95fr]">
-          <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
+          <section id="roadmap-questions" className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
             <div className="space-y-6">
               <label className="block">
                 <span className="text-sm font-bold text-zinc-200">1. What are you considering?</span>

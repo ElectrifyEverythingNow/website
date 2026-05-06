@@ -30,15 +30,7 @@ export function SiteNav() {
               pathname === "/solar" ? "text-green-400 font-semibold" : "text-zinc-300"
             }`}
           >
-            Solar Calculator
-          </Link>
-          <Link
-            href="/rates"
-            className={`hover:text-green-300 ${
-              pathname === "/rates" ? "text-green-400 font-semibold" : "text-zinc-300"
-            }`}
-          >
-            Rate Optimizer
+            Balcony Solar
           </Link>
           <Link
             href="/panel-checker"
