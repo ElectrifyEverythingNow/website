@@ -10,7 +10,9 @@ type FeedbackWidgetProps = {
   compact?: boolean;
 };
 
-const FEEDBACK_ENDPOINT = process.env.NEXT_PUBLIC_FEEDBACK_ENDPOINT || "";
+const FEEDBACK_ENDPOINT =
+  process.env.NEXT_PUBLIC_FEEDBACK_ENDPOINT ||
+  "https://script.google.com/macros/s/AKfycbxDV7mJNEo34KyxuptDygIu_r2Ea8fpU7khflZnMeRMQj7DMI1sdGRBedwO2Bz4A2wMKQ/exec";
 
 export function FeedbackWidget({
   toolId,

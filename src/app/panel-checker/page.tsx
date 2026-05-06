@@ -25,6 +25,7 @@ import {
 import { fallbackAnalysis } from "@/lib/panel-checker/normalize";
 import { EmailCapture } from "@/components/panel-checker/EmailCapture";
 import { NextSteps } from "@/components/panel-checker/NextSteps";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 const MAX_BYTES = 12 * 1024 * 1024;
 
@@ -359,6 +360,12 @@ function PanelCheckerInner() {
                 <ShareButtons onPrint={handlePrint} />
                 <NextSteps current="panel-checker" />
                 <EmailCapture />
+                <FeedbackWidget
+                  toolId="panel-checker"
+                  resultType={effectiveAnalysis.overallConfidence}
+                  source="panel-checker-results"
+                  title="Did this panel check help?"
+                />
               </>
             );
           })()}
