@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PasswordGate } from "@/components/panel-checker/PasswordGate";
 import { PanelUpload } from "@/components/panel-checker/PanelUpload";
 import { UpgradeSelection } from "@/components/panel-checker/UpgradeSelection";
 import { PanelResults } from "@/components/panel-checker/PanelResults";
@@ -30,11 +29,7 @@ import { FeedbackWidget } from "@/components/FeedbackWidget";
 const MAX_BYTES = 12 * 1024 * 1024;
 
 export default function PanelCheckerPage() {
-  return (
-    <PasswordGate>
-      <PanelCheckerInner />
-    </PasswordGate>
-  );
+  return <PanelCheckerInner />;
 }
 
 function PanelCheckerInner() {
@@ -238,8 +233,8 @@ function PanelCheckerInner() {
           Upload your panel. See if it can handle electrification — and what
           cheaper options to ask about first.
         </p>
-        <p className="text-xs text-amber-700 mt-3 inline-block bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
-          Private testing
+        <p className="text-xs text-green-700 mt-3 inline-block bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+          Free homeowner planning tool
         </p>
       </section>
 
