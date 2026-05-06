@@ -17,6 +17,14 @@ export function SiteNav() {
         </Link>
         <div className="flex items-center gap-4 text-sm">
           <Link
+            href="/start"
+            className={`hover:text-green-300 ${
+              pathname === "/start" ? "text-green-400 font-semibold" : "text-zinc-300"
+            }`}
+          >
+            Start Here
+          </Link>
+          <Link
             href="/solar"
             className={`hover:text-green-300 ${
               pathname === "/solar" ? "text-green-400 font-semibold" : "text-zinc-300"
