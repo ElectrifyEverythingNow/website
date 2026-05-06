@@ -16,11 +16,11 @@ const projectCards = [
     cta: "Check my panel options",
   },
   {
-    title: "I want a heat pump or water heater",
-    href: "/start",
+    title: "Will a heat pump work in my climate?",
+    href: "/heat-pump-fit",
     description:
-      "Figure out whether HVAC, hot water, or panel questions should come first before you call contractors.",
-    cta: "Prioritize my projects",
+      "Check whether a quoted heat pump is likely to keep up in cold weather, and how many hours per year it may be challenged.",
+    cta: "Check heat pump fit",
   },
   {
     title: "I want balcony solar",
@@ -33,7 +33,7 @@ const projectCards = [
 
 const comingSoon = [
   "Electrification roadmap based on likely energy savings",
-  "Heat pump readiness checker",
+  "Heat pump cold-weather fit checker",
   "Heat pump water heater fit checker",
   "EV charger without panel upgrade planner",
   "Post-install rate optimizer",

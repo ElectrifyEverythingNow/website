@@ -25,6 +25,14 @@ export function SiteNav() {
             Start Here
           </Link>
           <Link
+            href="/heat-pump-fit"
+            className={`hover:text-green-300 ${
+              pathname === "/heat-pump-fit" ? "text-green-400 font-semibold" : "text-zinc-300"
+            }`}
+          >
+            Heat Pump Fit
+          </Link>
+          <Link
             href="/solar"
             className={`hover:text-green-300 ${
               pathname === "/solar" ? "text-green-400 font-semibold" : "text-zinc-300"

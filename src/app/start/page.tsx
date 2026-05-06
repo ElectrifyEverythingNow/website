@@ -111,14 +111,14 @@ function recommendation(project: Project, trigger: Trigger, goal: Goal) {
 
   if (project === "heat-pump") {
     return {
-      title: "Heat Pump Readiness is the next tool to build",
+      title: "Use the Heat Pump Cold-Weather Fit Checker",
       body:
-        "The full checker is coming next. For now, your best first move is to gather current furnace/AC info and ask contractors about sizing, cold-weather performance, backup heat, and electrical scope.",
-      href: "/install-guide",
-      cta: "Read current guides",
+        "Start by checking whether a quoted heat pump size and model family is likely to keep up in your climate. The tool estimates the cold-weather hours when the system may be challenged, then gives contractor questions about sizing, backup heat, and exact model performance.",
+      href: "/heat-pump-fit",
+      cta: "Check heat pump fit",
       next: [
-        "Do not replace a furnace with another furnace without getting at least one heat pump quote.",
-        "Ask whether the quote includes load calculation, electrical work, backup heat, and rebate paperwork.",
+        "Use ZIP code, rough square footage, home tightness, quoted tons, and heat pump family.",
+        "Ask whether the quote includes a Manual J, exact low-temperature capacity, backup heat, and electrical scope.",
         "Use the Panel Checker if the contractor says electrical capacity is the blocker.",
       ],
     };
